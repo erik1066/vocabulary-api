@@ -13,6 +13,9 @@
     <RepositoryType>git</RepositoryType>
     <Version>0.0.1</Version>
     <IsTestProject>false</IsTestProject>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>CS8600;CS8602;CS8603</WarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -25,6 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.0.0-rc2" />
   </ItemGroup>
 
 </Project>
