@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Authors>Erik Knudsen</Authors>
+    <Owners>eknudsen</Owners>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Copyright>Copyright © 2018 Erik Knudsen</Copyright>
+    <PackageLicenseUrl>https://opensource.org/licenses/Apache-2.0</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/erik1066/vocabulary-api</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>0.0.1</Version>
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+  </ItemGroup>
+
+</Project>
