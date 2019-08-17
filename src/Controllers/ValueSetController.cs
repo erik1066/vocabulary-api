@@ -19,7 +19,13 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             _logger = logger;
         }
 
+        // GET api/1.0/valueset/PHVS_YesNoUnknown_CDC
+        /// <summary>
+        /// Gets a value set by its code
+        /// </summary>
+        /// <returns>ValueSet</returns>
         [HttpGet("{code}")]
+        [Produces("application/json")]
         public ActionResult<ValueSetForRetrievalDto> GetByCode([FromRoute] string code)
         {
             var vs = new ValueSetForRetrievalDto();
