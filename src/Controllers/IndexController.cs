@@ -11,7 +11,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
     [AllowAnonymous]
     public sealed class IndexController : ControllerBase
     {
-        private readonly string _version = "{ \"version\": \"" + typeof(Startup).Assembly.GetName().Version.ToString() + "\" }";
+        private readonly string _version = typeof(Startup).Assembly.GetName().Version.ToString();
 
         // GET api/1.0
         /// <summary>
@@ -22,7 +22,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return Content(_version);
+            return Ok(new { Version = _version });
         }
     }
 }
