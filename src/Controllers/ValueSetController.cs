@@ -25,26 +25,147 @@ namespace Cdc.Vocabulary.WebApi.Controllers
 
         // GET api/1.0/valueset/cdc/PHVS_YesNoUnknown_CDC
         /// <summary>
-        /// Gets a value set by its code for a given domain
+        /// Gets a value set
         /// </summary>
+        /// <param name="routeParameters">Required route parameters needed for the operation</param>
         /// <returns>ValueSet</returns>
-        [HttpGet("{domain}/{code}")]
+        [HttpGet("{domain}/{id}")]
         [Produces("application/json")]
         [SwaggerResponse(200, "Returns a ValueSet", typeof(ValueSetForRetrievalDto))]
+        [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
         [SwaggerResponse(404, "Not found", null)]
-        [SwaggerResponse(400, "The route parameters are invalid", typeof(IDictionary<string, string>))]
         [SwaggerResponse(500)]
-        public ActionResult<ValueSetForRetrievalDto> GetByCode([FromRoute] string domain, [FromRoute] string code)
+        public ActionResult<ValueSetForRetrievalDto> Get([FromRoute] ValueSetRouteParameters routeParameters)
         {
-            var vs = new ValueSetForRetrievalDto();
-            vs.Code = code;
-            vs.CreatedDate = DateTime.Now;
-            vs.LastRevisionDate = DateTime.Now;
-            vs.Id = Guid.NewGuid();
-            vs.StatusDate = DateTime.Now;
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-            return Ok(vs);
+            // TODO: Get the item from the database
+
+            var valueSet = new ValueSetForRetrievalDto()
+            {
+                Code = "PHVS_YesNoUnknown_CDC",
+                Name = "Yes No Unknown (YNU)",
+                Oid = "2.16.840.1.114222.4.11.888",
+                Definition = "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
+                CreatedDate = new DateTime(2007, 03, 20),
+                LastRevisionDate = new DateTime(2007, 03, 20),
+                Id = Guid.NewGuid(),
+                StatusDate = new DateTime(2007, 03, 20)
+            };
+
+            return Ok(valueSet);
         }
+
+        // POST api/1.0/valueset/cdc
+        /// <summary>
+        /// Inserts a value set
+        /// </summary>
+        /// <remarks>
+        /// Sample request to insert a value set:
+        ///
+        ///     POST /api/1.0/valueset/cdc
+        ///     {
+        ///         "code": "PHVS_YesNoUnknown_CDC",
+        ///         "definition": "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
+        ///         "name": "Yes No Unknown (YNU)",
+        ///         "oid": "2.16.840.1.114222.4.11.888"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="routeParameters">Required route parameters needed for the operation</param>
+        /// <param name="valueSet">The value set to insert</param>
+        [HttpPost("{domain}")]
+        [Consumes("application/json")]
+        [SwaggerResponse(201, "ValueSet was created successfully")]
+        [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
+        [SwaggerResponse(406, "Invalid content type")]
+        [SwaggerResponse(413, "The request payload is too large")]
+        [SwaggerResponse(415, "Invalid media type")]
+        [SwaggerResponse(500)]
+        public IActionResult Insert([FromRoute] DomainRouteParameters routeParameters, [FromBody] ValueSetForInsertionDto valueSet)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // TODO: Insert and get the ID
+
+            return CreatedAtAction
+            (
+                nameof(Get),
+                new
+                {
+                    domain = routeParameters.Domain,
+                    id = "3a23284c-1e0c-4693-9d15-615060065d0e" // TODO: Replace hard-coded GUID
+                },
+                null
+            );
+        }
+
+        // PUT api/1.0/valueset/cdc/3a23284c-1e0c-4693-9d15-615060065d0e
+        /// <summary>
+        /// Replaces a value set
+        /// </summary>
+        /// <remarks>
+        /// Sample request to replace a value set:
+        ///
+        ///     PUT /api/1.0/valueset/cdc/3a23284c-1e0c-4693-9d15-615060065d0e
+        ///     {
+        ///         "code": "PHVS_YesNoUnknown_CDC",
+        ///         "definition": "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
+        ///         "name": "Yes No Unknown (YNU)",
+        ///         "oid": "2.16.840.1.114222.4.11.888"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="routeParameters">Required route parameters needed for the operation</param>
+        /// <param name="valueSet">The value set to insert</param>
+        [HttpPut("{domain}/{id}")]
+        [Consumes("application/json")]
+        [SwaggerResponse(204, "ValueSet was replaced successfully")]
+        [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
+        [SwaggerResponse(406, "Invalid content type")]
+        [SwaggerResponse(413, "The request payload is too large")]
+        [SwaggerResponse(415, "Invalid media type")]
+        [SwaggerResponse(500)]
+        public IActionResult Replace([FromRoute] ValueSetRouteParameters routeParameters, [FromBody] ValueSetForInsertionDto valueSet)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // TODO: Replace the item
+
+            return NoContent();
+        }
+
+        // DELETE api/1.0/valueset/cdc/3a23284c-1e0c-4693-9d15-615060065d0e
+        /// <summary>
+        /// Deletes a value set
+        /// </summary>
+        /// <param name="routeParameters">Required route parameters needed for the operation</param>
+        [HttpDelete("{domain}/{id}")]
+        [SwaggerResponse(204, "ValueSet was deleted successfully")]
+        [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
+        [SwaggerResponse(500)]
+        public IActionResult Delete([FromRoute] ValueSetRouteParameters routeParameters)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // TODO: Delete the item
+
+            return NoContent();
+        }
+
+        #region Helper methods
 
         /// <summary>
         /// Checks to see whether a string can be converted into a GUID
@@ -84,5 +205,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
 
             return true;
         }
+
+        #endregion // Helper methods
     }
 }
