@@ -9,6 +9,7 @@ using Cdc.Vocabulary.WebApi.Helpers;
 using Swashbuckle.AspNetCore.Annotations;
 using Cdc.Vocabulary.Services;
 using AutoMapper;
+using Cdc.Vocabulary.Entities;
 
 namespace Cdc.Vocabulary.WebApi.Controllers
 {
@@ -126,7 +127,9 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         [SwaggerResponse(413, "The request payload is too large")]
         [SwaggerResponse(415, "Invalid media type")]
         [SwaggerResponse(500)]
-        public IActionResult Insert([FromRoute] DomainRouteParameters routeParameters, [FromBody] IEnumerable<ValueSetForInsertionDto> valueSetCollection)
+        public IActionResult Insert(
+            [FromRoute] DomainRouteParameters routeParameters,
+            [FromBody] IEnumerable<ValueSetForInsertionDto> valueSetCollection)
         {
             if (valueSetCollection == null)
             {
@@ -139,15 +142,24 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             }
 
             // Map each item from the request body to a DB entity
+            var valueSetEntities = Mapper.Map<IEnumerable<ValueSet>>(valueSetCollection);
 
-            // For each entity, insert into the database
+            // For each entity, add to context
+            foreach (var valueSetEntity in valueSetEntities)
+            {
+                _valueSetRepository.AddValueSet(valueSetEntity);
+            }
 
             // If save fails on any insert, throw an exception (which will result in a 500, which is correct in this case)
+            if (!_valueSetRepository.Save())
+            {
+                throw new Exception("Creating a value set collection failed on save.");
+            }
 
             // Make sure to collect IDs...
-
-            var ids = new List<string>() { "3a23284c-1e0c-4693-9d15-615060065d0e", "40d660e2-6061-496f-a28d-5a4dc42fbf8d" };
-            var idsAsString = string.Join(",", ids);
+            var valueSetCollectionToReturn = Mapper.Map<IEnumerable<ValueSetForRetrievalDto>>(valueSetEntities);
+            var idsAsString = string.Join(",",
+                valueSetCollectionToReturn.Select(a => a.Id));
 
             return CreatedAtAction
             (
