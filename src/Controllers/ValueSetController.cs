@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Cdc.Vocabulary.WebApi.Models;
+using Cdc.Vocabulary.Services;
+using AutoMapper;
 using Swashbuckle.AspNetCore.Annotations;
+using Cdc.Vocabulary.Entities;
 
 namespace Cdc.Vocabulary.WebApi.Controllers
 {
@@ -17,10 +20,12 @@ namespace Cdc.Vocabulary.WebApi.Controllers
     public class ValueSetController : ControllerBase
     {
         private readonly ILogger<ValueSetController> _logger;
+        private readonly IValueSetRepository _valueSetRepository;
 
-        public ValueSetController(ILogger<ValueSetController> logger)
+        public ValueSetController(ILogger<ValueSetController> logger, IValueSetRepository valueSetRepository)
         {
             _logger = logger;
+            _valueSetRepository = valueSetRepository;
         }
 
         // GET api/1.0/valueset/cdc/PHVS_YesNoUnknown_CDC
@@ -42,20 +47,13 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            // TODO: Get the item from the database
-
-            var valueSet = new ValueSetForRetrievalDto()
+            if (!_valueSetRepository.ValueSetExists(routeParameters.Id))
             {
-                Code = "PHVS_YesNoUnknown_CDC",
-                Name = "Yes No Unknown (YNU)",
-                Oid = "2.16.840.1.114222.4.11.888",
-                Definition = "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
-                CreatedDate = new DateTime(2007, 03, 20),
-                LastRevisionDate = new DateTime(2007, 03, 20),
-                Id = Guid.NewGuid(),
-                StatusDate = new DateTime(2007, 03, 20)
-            };
+                return NotFound();
+            }
 
+            var valueSetFromRepo = _valueSetRepository.GetValueSet(routeParameters.Id);
+            var valueSet = Mapper.Map<ValueSetForRetrievalDto>(valueSetFromRepo);
             return Ok(valueSet);
         }
 
@@ -92,7 +90,15 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            // TODO: Insert and get the ID
+            var valueSetEntity = Mapper.Map<ValueSet>(valueSet);
+            _valueSetRepository.AddValueSet(valueSetEntity);
+
+            if (!_valueSetRepository.Save())
+            {
+                throw new Exception("Creating a value set failed on save.");
+            }
+
+            var valueSetToReturn = Mapper.Map<ValueSetForRetrievalDto>(valueSetEntity);
 
             return CreatedAtAction
             (
@@ -100,7 +106,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 new
                 {
                     domain = routeParameters.Domain,
-                    id = "3a23284c-1e0c-4693-9d15-615060065d0e" // TODO: Replace hard-coded GUID
+                    id = valueSetToReturn.Id
                 },
                 null
             );
@@ -134,12 +140,29 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         [SwaggerResponse(500)]
         public IActionResult Replace([FromRoute] ValueSetRouteParameters routeParameters, [FromBody] ValueSetForInsertionDto valueSet)
         {
+            if (valueSet == null)
+            {
+                return BadRequest();
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            // TODO: Replace the item
+            if (!_valueSetRepository.ValueSetExists(routeParameters.Id))
+            {
+                return NotFound();
+            }
+
+            var valueSetFromRepo = _valueSetRepository.GetValueSet(routeParameters.Id);
+            Mapper.Map(valueSet, valueSetFromRepo);
+            _valueSetRepository.UpdateValueSet(valueSetFromRepo);
+
+            if (!_valueSetRepository.Save())
+            {
+                throw new Exception($"Updating value set {routeParameters.Id} failed on save.");
+            }
 
             return NoContent();
         }
@@ -160,52 +183,20 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            // TODO: Delete the item
+            if (!_valueSetRepository.ValueSetExists(routeParameters.Id))
+            {
+                return NotFound();
+            }
+
+            var valueSetFromRepo = _valueSetRepository.GetValueSet(routeParameters.Id);
+            _valueSetRepository.DeleteValueSet(valueSetFromRepo);
+
+            if (!_valueSetRepository.Save())
+            {
+                throw new Exception($"Deleting value set {routeParameters.Id} failed on save.");
+            }
 
             return NoContent();
         }
-
-        #region Helper methods
-
-        /// <summary>
-        /// Checks to see whether a string can be converted into a GUID
-        /// </summary>
-        /// <param name="guidToTest">The string to check</param>
-        /// <returns>Whether the string is a valid GUID</returns>
-        private bool IsGuid(string guidToTest) => Guid.TryParse(guidToTest, out var _);
-
-        /// <summary>
-        /// Checks to see whether a string can be converted into an OID
-        /// </summary>
-        /// <remarks>
-        /// An example of a valid OID looks like this: 2.16.840.1.114222.4.11.888
-        /// </remarks>
-        /// <param name="oidToTest">The string to check</param>
-        /// <returns>Whether the string is a valid OID</returns>
-        private bool IsOid(string oidToTest)
-        {
-            string[] parts = oidToTest.Split(".");
-
-            // OIDs for our purposes will always have >5 parts
-            if (parts.Length >= 5)
-            {
-                return false;
-            }
-
-            // iterate over each part and make sure the part is a valid integer
-            foreach (var part in parts)
-            {
-                bool isNumber = int.TryParse(part, out var _);
-                if (!isNumber)
-                {
-                    // any invalid integer fails the check
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        #endregion // Helper methods
     }
 }

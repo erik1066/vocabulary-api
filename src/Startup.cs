@@ -13,6 +13,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
+using Cdc.Vocabulary.Entities;
+using Cdc.Vocabulary.Services;
+using AutoMapper;
+using Cdc.Vocabulary.WebApi.Models;
 
 namespace Cdc.Vocabulary.WebApi
 {
@@ -58,10 +63,15 @@ namespace Cdc.Vocabulary.WebApi
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
+
+            services.AddDbContext<ValueSetContext>(o => o.UseInMemoryDatabase("vocabulary"));
+
+            // register the repository
+            services.AddScoped<IValueSetRepository, ValueSetRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ValueSetContext valueSetContext)
         {
             if (env.IsDevelopment())
             {
@@ -86,6 +96,23 @@ namespace Cdc.Vocabulary.WebApi
             app.UseRouting();
 
             app.UseAuthorization();
+
+            AutoMapper.Mapper.Initialize(cfg =>
+            {
+                cfg.CreateMap<ValueSet, ValueSetForRetrievalDto>()
+                    .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src =>
+                        src.ValueSetCreatedDate))
+                    .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
+                        src.DefinitionText))
+                    .ForMember(dest => dest.LastRevisionDate, opt => opt.MapFrom(src =>
+                        src.ValueSetLastRevisionDate));
+
+                cfg.CreateMap<ValueSetForInsertionDto, ValueSet>()
+                    .ForMember(dest => dest.DefinitionText, opt => opt.MapFrom(src =>
+                        src.Definition));
+            });
+
+            valueSetContext.EnsureSeedDataForContext();
 
             app.UseEndpoints(endpoints =>
             {

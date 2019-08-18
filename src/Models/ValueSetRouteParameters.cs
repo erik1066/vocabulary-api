@@ -13,8 +13,7 @@ namespace Cdc.Vocabulary.WebApi.Models
         /// The ID of the value set.
         /// </summary>
         [Required]
-        [StringLength(128)]
         [FromRoute(Name = "id")]
-        public string Id { get; set; } = string.Empty;
+        public Guid Id { get; set; } = default(Guid);
     }
 }

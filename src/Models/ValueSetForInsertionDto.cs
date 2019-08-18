@@ -34,7 +34,6 @@ namespace Cdc.Vocabulary.WebApi.Models
         /// <summary>
         /// Definition of the specific value set [NOTE: Value Set Definition is set at the Value Set level and is universal to all versions of that value set; differential descriptions are maintained at the Value Set Version level].
         /// </summary>
-        [Required]
         [StringLength(1024)]
         public string Definition { get; set; } = string.Empty;
 

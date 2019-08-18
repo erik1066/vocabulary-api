@@ -18,22 +18,22 @@ namespace Cdc.Vocabulary.Tests
             this._fixture = fixture;
         }
 
-        [Theory]
-        [InlineData("cdc", "3a23284c-1e0c-4693-9d15-615060065d0e")]
-        public void Get_ValueSet(string domain, string id)
-        {
-            // Arrange
-            var controller = new ValueSetController(_fixture.Logger);
+        // [Theory]
+        // [InlineData("cdc", "3a23284c-1e0c-4693-9d15-615060065d0e")]
+        // public void Get_ValueSet(string domain, string id)
+        // {
+        //     // Arrange
+        //     var controller = new ValueSetController(_fixture.Logger);
 
-            // Act
-            var getResult = controller.Get(new ValueSetRouteParameters() { Domain = domain, Id = id });
+        //     // Act
+        //     var getResult = controller.Get(new ValueSetRouteParameters() { Domain = domain, Id = id });
 
-            ActionResult<ValueSetForRetrievalDto> okResult = ((ActionResult<ValueSetForRetrievalDto>)getResult);
-            OkObjectResult result = (OkObjectResult)okResult.Result;
+        //     ActionResult<ValueSetForRetrievalDto> okResult = ((ActionResult<ValueSetForRetrievalDto>)getResult);
+        //     OkObjectResult result = (OkObjectResult)okResult.Result;
 
-            // Assert
-            Assert.Equal(200, result.StatusCode);
-        }
+        //     // Assert
+        //     Assert.Equal(200, result.StatusCode);
+        // }
     }
 
     public class ValueSetControllerFixture : IDisposable
