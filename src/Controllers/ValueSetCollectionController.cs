@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using Cdc.Vocabulary.WebApi.Models;
 using Cdc.Vocabulary.WebApi.Helpers;
 using Swashbuckle.AspNetCore.Annotations;
+using Cdc.Vocabulary.Services;
+using AutoMapper;
 
 namespace Cdc.Vocabulary.WebApi.Controllers
 {
@@ -18,10 +20,12 @@ namespace Cdc.Vocabulary.WebApi.Controllers
     public class ValueSetCollectionController : ControllerBase
     {
         private readonly ILogger<ValueSetCollectionController> _logger;
+        private readonly IValueSetRepository _valueSetRepository;
 
-        public ValueSetCollectionController(ILogger<ValueSetCollectionController> logger)
+        public ValueSetCollectionController(ILogger<ValueSetCollectionController> logger, IValueSetRepository valueSetRepository)
         {
             _logger = logger;
+            _valueSetRepository = valueSetRepository;
         }
 
         // GET api/1.0/valuesetcollection/cdc
@@ -172,47 +176,34 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         [SwaggerResponse(500)]
         public IActionResult Get(
             [FromRoute] DomainRouteParameters routeParameters,
-            [ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+            [FromRoute] [ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<string> ids)
         {
             if (ids == null)
             {
                 return BadRequest();
             }
 
-            // get entities from the database matching the IDs
-
-            // if the count of items from DB doesn't match count of IDs from the request, then some IDs were not found and we need to return a 404
-
-            // map each entity
-            var valueSets = new List<ValueSetForRetrievalDto>();
-
-            // mocked value sets
-
-            valueSets.Add(new ValueSetForRetrievalDto()
+            if (!ModelState.IsValid)
             {
-                Code = "PHVS_YesNoUnknown_CDC",
-                Name = "Yes No Unknown (YNU)",
-                Oid = "2.16.840.1.114222.4.11.888",
-                Definition = "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
-                CreatedDate = new DateTime(2007, 03, 20),
-                LastRevisionDate = new DateTime(2007, 03, 20),
-                Id = Guid.NewGuid(),
-                StatusDate = new DateTime(2007, 03, 20)
-            });
+                return BadRequest(ModelState);
+            }
 
-            valueSets.Add(new ValueSetForRetrievalDto()
+            var guids = new List<Guid>(ids.Count());
+
+            foreach (var id in ids)
             {
-                Code = "PHVS_RaceCategory_CDC",
-                Name = "Race Category",
-                Oid = "2.16.840.1.114222.4.11.836",
-                Definition = "General race category reported by the patient - subject may have more than one",
-                CreatedDate = new DateTime(2007, 03, 20),
-                LastRevisionDate = new DateTime(2007, 03, 20),
-                Id = Guid.NewGuid(),
-                StatusDate = new DateTime(2007, 03, 20)
-            });
+                guids.Add(new Guid(id)); // TODO: Fix this so we can model bind to GUIDs, or perhaps just try to parse as a GUID and return a 400 if it isn't a valid GUID. If the former, note the ArrayModelBinder doesn't support that at the moment... should look into a fix.
+            }
 
-            return Ok(valueSets);
+            var valueSetEntities = _valueSetRepository.GetValueSets(guids);
+
+            if (ids.Count() != valueSetEntities.Count())
+            {
+                return NotFound(); // even one ID that isn't found should generate a 404
+            }
+
+            var valueSetsToReturn = Mapper.Map<IEnumerable<ValueSetForRetrievalDto>>(valueSetEntities);
+            return Ok(valueSetsToReturn);
         }
 
         private string CreateValueSetResourceUri(DomainRouteParameters domainParameters, PaginationParameters parameters, ResourceUriType type)
