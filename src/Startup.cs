@@ -100,6 +100,14 @@ namespace Cdc.Vocabulary.WebApi
             AutoMapper.Mapper.Initialize(cfg =>
             {
                 cfg.CreateMap<ValueSet, ValueSetForRetrievalDto>()
+                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src =>
+                        src.ValueSetID))
+                    .ForMember(dest => dest.Code, opt => opt.MapFrom(src =>
+                        src.ValueSetCode))
+                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src =>
+                        src.ValueSetName))
+                    .ForMember(dest => dest.Oid, opt => opt.MapFrom(src =>
+                        src.ValueSetOID))
                     .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src =>
                         src.ValueSetCreatedDate))
                     .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
@@ -109,7 +117,13 @@ namespace Cdc.Vocabulary.WebApi
 
                 cfg.CreateMap<ValueSetForInsertionDto, ValueSet>()
                     .ForMember(dest => dest.DefinitionText, opt => opt.MapFrom(src =>
-                        src.Definition));
+                        src.Definition))
+                    .ForMember(dest => dest.ValueSetCode, opt => opt.MapFrom(src =>
+                        src.Code))
+                    .ForMember(dest => dest.ValueSetName, opt => opt.MapFrom(src =>
+                        src.Name))
+                    .ForMember(dest => dest.ValueSetOID, opt => opt.MapFrom(src =>
+                        src.Oid));
             });
 
             valueSetContext.EnsureSeedDataForContext();

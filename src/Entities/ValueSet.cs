@@ -7,15 +7,15 @@ namespace Cdc.Vocabulary.Entities
     public class ValueSet
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid ValueSetID { get; set; }
 
-        public string? Oid { get; set; }
-
-        [Required]
-        public string? Name { get; set; }
+        public string? ValueSetOID { get; set; }
 
         [Required]
-        public string? Code { get; set; }
+        public string? ValueSetName { get; set; }
+
+        [Required]
+        public string? ValueSetCode { get; set; }
 
         public string? Status { get; set; }
 
@@ -26,7 +26,7 @@ namespace Cdc.Vocabulary.Entities
 
         public string? ScopeNoteText { get; set; }
 
-        public Guid AssigningAuthorityId { get; set; }
+        public Guid AssigningAuthorityID { get; set; }
 
         public DateTimeOffset ValueSetCreatedDate { get; set; }
 

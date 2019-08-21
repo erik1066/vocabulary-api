@@ -17,24 +17,24 @@ namespace Cdc.Vocabulary.Services
 
         public IEnumerable<ValueSet> GetValueSets()
         {
-            return _context.ValueSets.OrderBy(a => a.Code);
+            return _context.ValueSets.OrderBy(a => a.ValueSetCode);
         }
 
         public IEnumerable<ValueSet> GetValueSets(IEnumerable<Guid> ids)
         {
-            return _context.ValueSets.Where(a => ids.Contains(a.Id))
-                .OrderBy(a => a.Code)
+            return _context.ValueSets.Where(a => ids.Contains(a.ValueSetID))
+                .OrderBy(a => a.ValueSetCode)
                 .ToList();
         }
 
         public ValueSet GetValueSet(Guid id)
         {
-            return _context.ValueSets.FirstOrDefault(a => a.Id == id);
+            return _context.ValueSets.FirstOrDefault(a => a.ValueSetID == id);
         }
 
         public void AddValueSet(ValueSet valueSet)
         {
-            valueSet.Id = Guid.NewGuid();
+            valueSet.ValueSetID = Guid.NewGuid();
             valueSet.ValueSetCreatedDate = DateTime.Now;
             valueSet.ValueSetLastRevisionDate = DateTime.Now;
             valueSet.StatusDate = DateTime.Now;
@@ -54,7 +54,7 @@ namespace Cdc.Vocabulary.Services
 
         public bool ValueSetExists(Guid id)
         {
-            return _context.ValueSets.Any(a => a.Id == id);
+            return _context.ValueSets.Any(a => a.ValueSetID == id);
         }
 
         public bool Save()
