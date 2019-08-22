@@ -199,6 +199,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                     return Url.Link(nameof(GetValueSets),
                     new
                     {
+                        searchQuery = parameters.SearchQuery,
                         domain = domainParameters.Domain,
                         pageNumber = parameters.PageNumber - 1,
                         pageSize = parameters.PageSize
@@ -207,6 +208,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                     return Url.Link(nameof(GetValueSets),
                     new
                     {
+                        searchQuery = parameters.SearchQuery,
                         domain = domainParameters.Domain,
                         pageNumber = parameters.PageNumber + 1,
                         pageSize = parameters.PageSize
@@ -215,6 +217,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                     return Url.Link(nameof(GetValueSets),
                     new
                     {
+                        searchQuery = parameters.SearchQuery,
                         domain = domainParameters.Domain,
                         pageNumber = parameters.PageNumber,
                         pageSize = parameters.PageSize

@@ -22,6 +22,20 @@ namespace Cdc.Vocabulary.Services
             var collectionBeforePaging = _context.ValueSets
                 .OrderBy(v => v.ValueSetCode);
 
+            if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
+            {
+                var searchQueryStringForWhereClause = parameters.SearchQuery.Trim().ToLowerInvariant();
+                collectionBeforePaging = _context.ValueSets
+                    .Where(
+                        v =>
+                            v.ValueSetCode.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
+                            v.ValueSetName.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
+                            v.ValueSetOID.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
+                            v.DefinitionText.ToLowerInvariant().Contains(searchQueryStringForWhereClause)
+                    )
+                    .OrderBy(v => v.ValueSetCode);
+            }
+
             return PagedList<ValueSet>.Create(collectionBeforePaging,
                 parameters.PageNumber,
                 parameters.PageSize);
