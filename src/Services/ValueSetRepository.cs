@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Cdc.Vocabulary.Entities;
+using Cdc.Vocabulary.WebApi.Helpers;
+using Cdc.Vocabulary.WebApi.Models;
 
 namespace Cdc.Vocabulary.Services
 {
@@ -15,9 +17,14 @@ namespace Cdc.Vocabulary.Services
             _context = context;
         }
 
-        public IEnumerable<ValueSet> GetValueSets()
+        public PagedList<ValueSet> GetValueSets(PaginationParameters parameters)
         {
-            return _context.ValueSets.OrderBy(a => a.ValueSetCode);
+            var collectionBeforePaging = _context.ValueSets
+                .OrderBy(v => v.ValueSetCode);
+
+            return PagedList<ValueSet>.Create(collectionBeforePaging,
+                parameters.PageNumber,
+                parameters.PageSize);
         }
 
         public IEnumerable<ValueSet> GetValueSets(IEnumerable<Guid> ids)

@@ -51,10 +51,10 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            // TODO: Get the item from the database
+            // Get the items from the database
+            var valueSetEntities = _valueSetRepository.GetValueSets(paginationParameters);
 
             // Get pagination metadata
-
             var previousPageLink = CreateValueSetResourceUri(routeParameters, paginationParameters, ResourceUriType.PreviousPage);
             var nextPageLink = CreateValueSetResourceUri(routeParameters, paginationParameters, ResourceUriType.NextPage);
 
@@ -70,35 +70,8 @@ namespace Cdc.Vocabulary.WebApi.Controllers
 
             Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
 
-            var valueSets = new List<ValueSetForRetrievalDto>();
-
-            // mocked value sets
-
-            valueSets.Add(new ValueSetForRetrievalDto()
-            {
-                Code = "PHVS_YesNoUnknown_CDC",
-                Name = "Yes No Unknown (YNU)",
-                Oid = "2.16.840.1.114222.4.11.888",
-                Definition = "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
-                CreatedDate = new DateTime(2007, 03, 20),
-                LastRevisionDate = new DateTime(2007, 03, 20),
-                Id = Guid.NewGuid(),
-                StatusDate = new DateTime(2007, 03, 20)
-            });
-
-            valueSets.Add(new ValueSetForRetrievalDto()
-            {
-                Code = "PHVS_RaceCategory_CDC",
-                Name = "Race Category",
-                Oid = "2.16.840.1.114222.4.11.836",
-                Definition = "General race category reported by the patient - subject may have more than one",
-                CreatedDate = new DateTime(2007, 03, 20),
-                LastRevisionDate = new DateTime(2007, 03, 20),
-                Id = Guid.NewGuid(),
-                StatusDate = new DateTime(2007, 03, 20)
-            });
-
-            return Ok(valueSets);
+            var valueSetsToReturn = Mapper.Map<IEnumerable<ValueSetForRetrievalDto>>(valueSetEntities);
+            return Ok(valueSetsToReturn);
         }
 
         // POST api/1.0/valuesetcollection/cdc

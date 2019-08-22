@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Cdc.Vocabulary.Entities;
+using Cdc.Vocabulary.WebApi.Helpers;
+using Cdc.Vocabulary.WebApi.Models;
 
 namespace Cdc.Vocabulary.Services
 {
     public interface IValueSetRepository
     {
-        IEnumerable<ValueSet> GetValueSets();
+        PagedList<ValueSet> GetValueSets(PaginationParameters parameters);
 
         IEnumerable<ValueSet> GetValueSets(IEnumerable<Guid> ids);
 
