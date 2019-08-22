@@ -16,5 +16,8 @@ namespace Cdc.Vocabulary.WebApi.Models
         [Range(0, 100)]
         [FromQuery(Name = "pageSize")]
         public int PageSize { get; set; } = 10;
+
+        [FromQuery(Name = "searchQuery")]
+        public string SearchQuery { get; set; } = string.Empty;
     }
 }
