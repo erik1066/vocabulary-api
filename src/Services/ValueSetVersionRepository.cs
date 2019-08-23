@@ -69,6 +69,9 @@ namespace Cdc.Vocabulary.Services
             valueSetVersion.ValueSetVersionID = Guid.NewGuid();
             // TODO: Increment version #
             valueSetVersion.StatusDate = DateTime.Now;
+            int newVersionNumber = _context.ValueSetVersions.Max(v => v.ValueSetVersionNumber) + 1;
+            valueSetVersion.ValueSetVersionNumber = newVersionNumber;
+            
             _context.ValueSetVersions.Add(valueSetVersion);
         }
 
