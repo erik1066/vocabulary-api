@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Cdc.Vocabulary.Entities;
 using Cdc.Vocabulary.WebApi.Helpers;
 using Cdc.Vocabulary.WebApi.Models;
