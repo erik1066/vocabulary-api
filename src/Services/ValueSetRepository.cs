@@ -53,6 +53,18 @@ namespace Cdc.Vocabulary.Services
             return _context.ValueSets.FirstOrDefault(a => a.ValueSetID == id);
         }
 
+        public ValueSet GetValueSet(string id)
+        {
+            if (id.Contains(".") && !id.Contains("_"))
+            {
+                return _context.ValueSets.FirstOrDefault(a => a.ValueSetOID == id);
+            }
+            else
+            {
+                return _context.ValueSets.FirstOrDefault(a => a.ValueSetCode == id);
+            }
+        }
+
         public void AddValueSet(ValueSet valueSet)
         {
             valueSet.ValueSetID = Guid.NewGuid();

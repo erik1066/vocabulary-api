@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cdc.Vocabulary.Entities
 {
-    public class ValueSetConcept
+    public sealed class ValueSetConcept
     {
         [Key]
         public Guid ValueSetConceptID { get; set; }

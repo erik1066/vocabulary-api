@@ -14,6 +14,8 @@ namespace Cdc.Vocabulary.Services
 
         ValueSet GetValueSet(Guid id);
 
+        ValueSet GetValueSet(string id);
+
         void AddValueSet(ValueSet valueSet);
 
         void DeleteValueSet(ValueSet valueSet);

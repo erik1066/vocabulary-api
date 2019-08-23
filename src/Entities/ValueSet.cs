@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cdc.Vocabulary.Entities
 {
-    public class ValueSet
+    public sealed class ValueSet
     {
         [Key]
         public Guid ValueSetID { get; set; }
