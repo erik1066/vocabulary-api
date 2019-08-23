@@ -39,7 +39,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             _codeSystemRepository = codeSystemRepository;
         }
 
-        // GET api/1.0/valuesetversion/cdc/PHVS_YesNoUnknown_CDC
+        // GET api/1.0/valuesetversion/cdc/5987c62d-410f-df11-80e4-0015173d1785
         /// <summary>
         /// Gets a value set version
         /// </summary>
@@ -51,7 +51,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
         [SwaggerResponse(404, "Not found", null)]
         [SwaggerResponse(500)]
-        public ActionResult<ValueSetVersionForRetrievalDto> Get([FromRoute] ValueSetRouteParameters routeParameters)
+        public ActionResult<ValueSetVersionForRetrievalDto> GetValueSetVersion([FromRoute] ValueSetRouteParameters routeParameters)
         {
             if (!ModelState.IsValid)
             {

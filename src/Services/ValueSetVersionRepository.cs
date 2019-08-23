@@ -19,30 +19,22 @@ namespace Cdc.Vocabulary.Services
 
         public PagedList<ValueSetVersion> GetValueSetVersions(ValueSetVersionPaginationParameters parameters)
         {
-            var collectionBeforePaging = _context.ValueSetVersions;
+            IQueryable<ValueSetVersion> collectionBeforePaging = _context.ValueSetVersions;
 
             if (!string.IsNullOrWhiteSpace(parameters.Oid))
             {
-                collectionBeforePaging.Where(v => v.ValueSetOID.Equals(parameters.Oid));    
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetOID.Equals(parameters.Oid));    
             }
-
-            // if (!string.IsNullOrWhiteSpace(parameters.Code))
-            // {
-            //     collectionBeforePaging.Where(v => v.ValueSetCode.Contains(parameters.Code));    
-            // }
 
             var searchQueryStringForWhereClause = string.Empty;
 
             if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
             {
                 searchQueryStringForWhereClause = parameters.SearchQuery.Trim().ToLowerInvariant();
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetVersionDescriptionText.ToLowerInvariant().Contains(searchQueryStringForWhereClause));
             }
-
-            collectionBeforePaging
-                .Where(v => 
-                    !string.IsNullOrWhiteSpace(parameters.Oid) ? v.ValueSetOID.Equals(parameters.Oid) : true)
-                .Where(v => 
-                    !string.IsNullOrWhiteSpace(searchQueryStringForWhereClause) ? v.ValueSetVersionDescriptionText.ToLowerInvariant().Contains(searchQueryStringForWhereClause) : true)
+            
+            collectionBeforePaging = collectionBeforePaging
                 .OrderBy(a => a.ValueSetOID)
                 .ThenBy(a => a.ValueSetVersionNumber);
 
@@ -67,11 +59,11 @@ namespace Cdc.Vocabulary.Services
         public void AddValueSetVersion(ValueSetVersion valueSetVersion)
         {
             valueSetVersion.ValueSetVersionID = Guid.NewGuid();
-            // TODO: Increment version #
+            
             valueSetVersion.StatusDate = DateTime.Now;
             int newVersionNumber = _context.ValueSetVersions.Max(v => v.ValueSetVersionNumber) + 1;
             valueSetVersion.ValueSetVersionNumber = newVersionNumber;
-            
+
             _context.ValueSetVersions.Add(valueSetVersion);
         }
 
