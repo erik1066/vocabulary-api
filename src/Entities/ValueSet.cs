@@ -27,9 +27,5 @@ namespace Cdc.Vocabulary.Entities
         public string? ScopeNoteText { get; set; }
 
         public Guid AssigningAuthorityID { get; set; }
-
-        public DateTimeOffset ValueSetCreatedDate { get; set; }
-
-        public DateTimeOffset ValueSetLastRevisionDate { get; set; }
     }
 }

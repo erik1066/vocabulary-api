@@ -108,12 +108,8 @@ namespace Cdc.Vocabulary.WebApi
                         src.ValueSetName))
                     .ForMember(dest => dest.Oid, opt => opt.MapFrom(src =>
                         src.ValueSetOID))
-                    .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src =>
-                        src.ValueSetCreatedDate))
                     .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
-                        src.DefinitionText))
-                    .ForMember(dest => dest.LastRevisionDate, opt => opt.MapFrom(src =>
-                        src.ValueSetLastRevisionDate));
+                        src.DefinitionText));
 
                 cfg.CreateMap<ValueSetForInsertionDto, ValueSet>()
                     .ForMember(dest => dest.DefinitionText, opt => opt.MapFrom(src =>

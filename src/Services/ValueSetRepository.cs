@@ -56,8 +56,6 @@ namespace Cdc.Vocabulary.Services
         public void AddValueSet(ValueSet valueSet)
         {
             valueSet.ValueSetID = Guid.NewGuid();
-            valueSet.ValueSetCreatedDate = DateTime.Now;
-            valueSet.ValueSetLastRevisionDate = DateTime.Now;
             valueSet.StatusDate = DateTime.Now;
             _context.ValueSets.Add(valueSet);
         }
@@ -70,7 +68,6 @@ namespace Cdc.Vocabulary.Services
         public void UpdateValueSet(ValueSet valueSet)
         {
             // no code in this implementation
-            valueSet.ValueSetLastRevisionDate = DateTime.Now;
         }
 
         public bool ValueSetExists(Guid id)
