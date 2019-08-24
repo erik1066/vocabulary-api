@@ -63,7 +63,6 @@ namespace Cdc.Vocabulary.Services
             return _context.ValueSetConcepts.Where(a => ids.Contains(a.ValueSetConceptID))
                 .OrderBy(a => a.ConceptCode)
                 .ToList();
-
         }
 
         public ValueSetConcept GetValueSetConcept(Guid id)

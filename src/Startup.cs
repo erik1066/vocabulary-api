@@ -71,6 +71,8 @@ namespace Cdc.Vocabulary.WebApi
             services.AddScoped<IValueSetVersionRepository, ValueSetVersionRepository>();
             services.AddScoped<IValueSetConceptRepository, ValueSetConceptRepository>();
             services.AddScoped<ICodeSystemRepository, CodeSystemRepository>();
+
+            services.AddResponseCaching();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -153,6 +155,8 @@ namespace Cdc.Vocabulary.WebApi
             });
 
             vocabularyContext.EnsureSeedDataForContext();
+
+            app.UseResponseCaching();
 
             app.UseEndpoints(endpoints =>
             {
