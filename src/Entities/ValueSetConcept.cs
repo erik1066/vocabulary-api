@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Cdc.Vocabulary.Entities
 {
@@ -27,5 +28,17 @@ namespace Cdc.Vocabulary.Entities
         public string ConceptCode { get; set; } = string.Empty; // FK1 - CodeSystemConcept.ConceptCode
 
         public int? Sequence { get; set; }
+
+        [NotMapped]
+        public string HL70396Identifier { get; set; } = string.Empty;
+
+        [NotMapped]
+        public string PreferredAlternateCode { get; set; } = string.Empty;
+
+        [NotMapped]
+        public string? ValueSetOID { get; set; }
+
+        [NotMapped]
+        public string? ValueSetCode { get; set; }
     }
 }

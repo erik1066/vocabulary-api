@@ -152,6 +152,30 @@ namespace Cdc.Vocabulary.WebApi
                         src.ValueSetCode))
                     .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
                         src.DefinitionText));
+
+                cfg.CreateMap<ValueSetConcept, ValueSetConceptForRetrievalDto>()
+                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src =>
+                        src.ValueSetConceptID))
+                    .ForMember(dest => dest.CodeSystemOid, opt => opt.MapFrom(src =>
+                        src.CodeSystemOID))
+                    .ForMember(dest => dest.ValueSetVersionId, opt => opt.MapFrom(src =>
+                        src.ValueSetVersionID))
+                    .ForMember(dest => dest.Code, opt => opt.MapFrom(src =>
+                        src.ConceptCode))
+                    .ForMember(dest => dest.ScopeNote, opt => opt.MapFrom(src =>
+                        src.ScopeNoteText))
+                    .ForMember(dest => dest.Status, opt => opt.MapFrom(src =>
+                        src.ValueSetConceptStatusCode))
+                    .ForMember(dest => dest.StatusDate, opt => opt.MapFrom(src =>
+                        src.ValueSetConceptStatusDate))
+                    .ForMember(dest => dest.CdcPreferredDesignation, opt => opt.MapFrom(src =>
+                        src.CDCPreferredDesignation))
+                    .ForMember(dest => dest.Hl70396Identifier, opt => opt.MapFrom(src =>
+                        src.HL70396Identifier))
+                    .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
+                        src.ValueSetConceptDefinitionText));
+
+
             });
 
             vocabularyContext.EnsureSeedDataForContext();

@@ -29,30 +29,90 @@ namespace Cdc.Vocabulary.Services
             _context = context;
         }
 
-        public PagedList<ValueSetInfo> GetValueSetConcepts(ValueSetVersionPaginationParameters parameters)
+        public PagedList<ValueSetConcept> GetValueSetConcepts(ValueSetVersionPaginationParameters parameters)
         {
-            IQueryable<ValueSetInfo> collectionBeforePaging = _context.ValueSetConcepts
-                .Join(_context.ValueSetVersions, // the source table of the inner join
-                    vsc => vsc.ValueSetVersionID,        // Select the primary key (the first part of the "on" clause in an sql "join" statement)
-                    vsv => vsv.ValueSetVersionID,   // Select the foreign key (the second part of the "on" clause)
-                    (vsc, vsv) => new ValueSetConceptInfo()
+            var collection = _context.ValueSetConcepts
+                .Join(_context.ValueSetVersions,
+                    vsc => vsc.ValueSetVersionID,
+                    vsv => vsv.ValueSetVersionID,
+                    (vsc, vsv) => new ValueSetConcept()
                     {
-                        ValueSetConcept = vsc,
-                        ValueSetVersion = vsv
+                        ValueSetConceptID = vsc.ValueSetConceptID,
+                        CodeSystemConceptName = vsc.CodeSystemConceptName,
+                        ValueSetConceptStatusCode = vsc.ValueSetConceptStatusCode,
+                        ValueSetConceptStatusDate = vsc.ValueSetConceptStatusDate,
+                        ValueSetConceptDefinitionText = vsc.ValueSetConceptDefinitionText != "NULL" ? vsc.ValueSetConceptDefinitionText : string.Empty,
+                        CDCPreferredDesignation = vsc.CDCPreferredDesignation,
+                        ScopeNoteText = vsc.ScopeNoteText,
+                        ValueSetVersionID = vsc.ValueSetVersionID,
+                        CodeSystemOID = vsc.CodeSystemOID,
+                        ConceptCode = vsc.ConceptCode,
+                        Sequence = vsc.Sequence,
+                        ValueSetOID = vsv.ValueSetOID
                     })
                 .Join(_context.ValueSets,
-                    a => a.ValueSetVersion.ValueSetOID,
+                    vsc => vsc.ValueSetOID,
                     vs => vs.ValueSetOID,
-                    (a, vs) => new ValueSetInfo()
+                    (vsc, vs) => new ValueSetConcept()
                     {
-                        ValueSet = vs,
-                        ValueSetConceptInfo = a
+                        ValueSetConceptID = vsc.ValueSetConceptID,
+                        CodeSystemConceptName = vsc.CodeSystemConceptName,
+                        ValueSetConceptStatusCode = vsc.ValueSetConceptStatusCode,
+                        ValueSetConceptStatusDate = vsc.ValueSetConceptStatusDate,
+                        ValueSetConceptDefinitionText = vsc.ValueSetConceptDefinitionText,
+                        CDCPreferredDesignation = vsc.CDCPreferredDesignation,
+                        ScopeNoteText = vsc.ScopeNoteText,
+                        ValueSetVersionID = vsc.ValueSetVersionID,
+                        CodeSystemOID = vsc.CodeSystemOID,
+                        ConceptCode = vsc.ConceptCode,
+                        Sequence = vsc.Sequence,
+                        ValueSetOID = vsc.ValueSetOID,
+                        ValueSetCode = vs.ValueSetCode
                     })
-                .Where(vs => vs.ValueSet.ValueSetCode == parameters.Code || vs.ValueSet.ValueSetOID == parameters.Oid);//ValueSetVersion.ValueSetVersionID == parameters.Code); // selection
+                .Join(_context.CodeSystems,
+                    vsc => vsc.CodeSystemOID,
+                    cs => cs.CodeSystemOID,
+                    (vsc, cs) => new ValueSetConcept()
+                    {
+                        ValueSetConceptID = vsc.ValueSetConceptID,
+                        CodeSystemConceptName = vsc.CodeSystemConceptName,
+                        ValueSetConceptStatusCode = vsc.ValueSetConceptStatusCode,
+                        ValueSetConceptStatusDate = vsc.ValueSetConceptStatusDate,
+                        ValueSetConceptDefinitionText = vsc.ValueSetConceptDefinitionText,
+                        CDCPreferredDesignation = vsc.CDCPreferredDesignation,
+                        ScopeNoteText = vsc.ScopeNoteText,
+                        ValueSetVersionID = vsc.ValueSetVersionID,
+                        CodeSystemOID = vsc.CodeSystemOID,
+                        ConceptCode = vsc.ConceptCode,
+                        Sequence = vsc.Sequence,
+                        ValueSetOID = vsc.ValueSetOID,
+                        ValueSetCode = vsc.ValueSetCode,
+                        HL70396Identifier = cs.HL70396Identifier
+                    });
 
+            // var items1 = collection.Take(20).ToList();
 
+            if (!string.IsNullOrWhiteSpace(parameters.Code))
+            {
+                collection = collection.Where(c => c.ValueSetCode != null ? c.ValueSetCode.Equals(parameters.Code, StringComparison.OrdinalIgnoreCase) : false);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.Oid))
+            {
+                collection = collection.Where(c => c.ValueSetOID != null ? c.ValueSetOID.Equals(parameters.Code) : false);
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
+            {
+                var searchQueryStringForWhereClause = string.Empty;
+                searchQueryStringForWhereClause = parameters.SearchQuery.Trim().ToLowerInvariant();
+                collection = collection.Where(v =>
+                    v.ValueSetConceptDefinitionText.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
+                    v.CDCPreferredDesignation.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
+                    v.CDCPreferredDesignation.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
+                    v.ConceptCode.ToLowerInvariant().Contains(searchQueryStringForWhereClause)
+                );
+            }
 
-            return PagedList<ValueSetInfo>.Create(collectionBeforePaging,
+            return PagedList<ValueSetConcept>.Create(collection,
                 parameters.PageNumber,
                 parameters.PageSize);
         }
