@@ -65,30 +65,64 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             // Get the items from the database
             var valueSetConceptEntities = _valueSetConceptRepository.GetValueSetConcepts(paginationParameters);
 
-            // // Get pagination metadata
-            // var previousPageLink = CreateValueSetResourceUri(routeParameters, paginationParameters, ResourceUriType.PreviousPage);
-            // var nextPageLink = CreateValueSetResourceUri(routeParameters, paginationParameters, ResourceUriType.NextPage);
+            // Get pagination metadata
+            var previousPageLink = CreateValueSetResourceUri(routeParameters, paginationParameters, ResourceUriType.PreviousPage);
+            var nextPageLink = CreateValueSetResourceUri(routeParameters, paginationParameters, ResourceUriType.NextPage);
 
-            // var paginationMetadata = new
-            // {
-            //     totalCount = 2,
-            //     pageSize = paginationParameters.PageSize,
-            //     currentPage = 1,
-            //     totalPages = 1,
-            //     previousPageLink = previousPageLink,
-            //     nextPageLink = nextPageLink
-            // };
+            var paginationMetadata = new
+            {
+                totalCount = valueSetConceptEntities.TotalCount,
+                pageSize = valueSetConceptEntities.PageSize,
+                currentPage = valueSetConceptEntities.CurrentPage,
+                totalPages = valueSetConceptEntities.TotalPages,
+                previousPageLink = valueSetConceptEntities.HasPrevious ? previousPageLink : string.Empty,
+                nextPageLink = valueSetConceptEntities.HasNext ? nextPageLink : string.Empty
+            };
 
-            // Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+            Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
 
             var valueSetConceptsToReturn = Mapper.Map<IEnumerable<ValueSetConceptForRetrievalDto>>(valueSetConceptEntities);
             return Ok(valueSetConceptsToReturn);
         }
 
-        public enum ResourceUriType
+        private string CreateValueSetResourceUri(DomainRouteParameters domainParameters, ValueSetVersionPaginationParameters parameters, ResourceUriType type)
         {
-            PreviousPage,
-            NextPage
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link(nameof(GetValueSetConcepts),
+                    new
+                    {
+                        searchQuery = parameters.SearchQuery,
+                        oid = parameters.Oid,
+                        code = parameters.Code,
+                        domain = domainParameters.Domain,
+                        pageNumber = parameters.PageNumber - 1,
+                        pageSize = parameters.PageSize
+                    });
+                case ResourceUriType.NextPage:
+                    return Url.Link(nameof(GetValueSetConcepts),
+                    new
+                    {
+                        searchQuery = parameters.SearchQuery,
+                        oid = parameters.Oid,
+                        code = parameters.Code,
+                        domain = domainParameters.Domain,
+                        pageNumber = parameters.PageNumber + 1,
+                        pageSize = parameters.PageSize
+                    });
+                default:
+                    return Url.Link(nameof(GetValueSetConcepts),
+                    new
+                    {
+                        searchQuery = parameters.SearchQuery,
+                        oid = parameters.Oid,
+                        code = parameters.Code,
+                        domain = domainParameters.Domain,
+                        pageNumber = parameters.PageNumber,
+                        pageSize = parameters.PageSize
+                    });
+            }
         }
     }
 }

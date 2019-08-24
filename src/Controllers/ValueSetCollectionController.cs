@@ -60,12 +60,12 @@ namespace Cdc.Vocabulary.WebApi.Controllers
 
             var paginationMetadata = new
             {
-                totalCount = 2,
-                pageSize = paginationParameters.PageSize,
-                currentPage = 1,
-                totalPages = 1,
-                previousPageLink = previousPageLink,
-                nextPageLink = nextPageLink
+                totalCount = valueSetEntities.TotalCount,
+                pageSize = valueSetEntities.PageSize,
+                currentPage = valueSetEntities.CurrentPage,
+                totalPages = valueSetEntities.TotalPages,
+                previousPageLink = valueSetEntities.HasPrevious ? previousPageLink : string.Empty,
+                nextPageLink = valueSetEntities.HasNext ? nextPageLink : string.Empty
             };
 
             Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
@@ -223,12 +223,6 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                         pageSize = parameters.PageSize
                     });
             }
-        }
-
-        public enum ResourceUriType
-        {
-            PreviousPage,
-            NextPage
         }
     }
 }

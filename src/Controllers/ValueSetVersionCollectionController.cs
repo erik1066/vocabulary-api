@@ -65,30 +65,64 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             // Get the items from the database
             var valueSetVersionEntities = _valueSetVersionRepository.GetValueSetVersions(paginationParameters);
 
-            // // Get pagination metadata
-            // var previousPageLink = CreateValueSetResourceUri(routeParameters, paginationParameters, ResourceUriType.PreviousPage);
-            // var nextPageLink = CreateValueSetResourceUri(routeParameters, paginationParameters, ResourceUriType.NextPage);
+            // Get pagination metadata
+            var previousPageLink = CreateValueSetResourceUri(routeParameters, paginationParameters, ResourceUriType.PreviousPage);
+            var nextPageLink = CreateValueSetResourceUri(routeParameters, paginationParameters, ResourceUriType.NextPage);
 
-            // var paginationMetadata = new
-            // {
-            //     totalCount = 2,
-            //     pageSize = paginationParameters.PageSize,
-            //     currentPage = 1,
-            //     totalPages = 1,
-            //     previousPageLink = previousPageLink,
-            //     nextPageLink = nextPageLink
-            // };
+            var paginationMetadata = new
+            {
+                totalCount = valueSetVersionEntities.TotalCount,
+                pageSize = valueSetVersionEntities.PageSize,
+                currentPage = valueSetVersionEntities.CurrentPage,
+                totalPages = valueSetVersionEntities.TotalPages,
+                previousPageLink = valueSetVersionEntities.HasPrevious ? previousPageLink : string.Empty,
+                nextPageLink = valueSetVersionEntities.HasNext ? nextPageLink : string.Empty
+            };
 
-            // Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+            Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
 
             var valueSetVersionssToReturn = Mapper.Map<IEnumerable<ValueSetVersionForRetrievalDto>>(valueSetVersionEntities);
             return Ok(valueSetVersionssToReturn);
         }
 
-        public enum ResourceUriType
+        private string CreateValueSetResourceUri(DomainRouteParameters domainParameters, ValueSetVersionPaginationParameters parameters, ResourceUriType type)
         {
-            PreviousPage,
-            NextPage
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link(nameof(GetValueSetVersions),
+                    new
+                    {
+                        searchQuery = parameters.SearchQuery,
+                        oid = parameters.Oid,
+                        code = parameters.Code,
+                        domain = domainParameters.Domain,
+                        pageNumber = parameters.PageNumber - 1,
+                        pageSize = parameters.PageSize
+                    });
+                case ResourceUriType.NextPage:
+                    return Url.Link(nameof(GetValueSetVersions),
+                    new
+                    {
+                        searchQuery = parameters.SearchQuery,
+                        oid = parameters.Oid,
+                        code = parameters.Code,
+                        domain = domainParameters.Domain,
+                        pageNumber = parameters.PageNumber + 1,
+                        pageSize = parameters.PageSize
+                    });
+                default:
+                    return Url.Link(nameof(GetValueSetVersions),
+                    new
+                    {
+                        searchQuery = parameters.SearchQuery,
+                        oid = parameters.Oid,
+                        code = parameters.Code,
+                        domain = domainParameters.Domain,
+                        pageNumber = parameters.PageNumber,
+                        pageSize = parameters.PageSize
+                    });
+            }
         }
     }
 }
