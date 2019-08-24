@@ -8,7 +8,7 @@ namespace Cdc.Vocabulary.Services
 {
     public interface IValueSetConceptRepository
     {
-        PagedList<ValueSetConcept> GetValueSetConcepts(PaginationParameters parameters);
+        PagedList<ValueSetInfo> GetValueSetConcepts(ValueSetVersionPaginationParameters parameters);
 
         IEnumerable<ValueSetConcept> GetValueSetConcepts(IEnumerable<Guid> ids);
 

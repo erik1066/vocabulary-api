@@ -26,7 +26,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         private readonly ICodeSystemRepository _codeSystemRepository;
 
         public ValueSetVersionController(
-            ILogger<ValueSetVersionController> logger, 
+            ILogger<ValueSetVersionController> logger,
             IValueSetRepository valueSetRepository,
             IValueSetVersionRepository valueSetVersionRepository,
             IValueSetConceptRepository valueSetConceptRepository,
@@ -64,13 +64,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             }
 
             var valueSetVersionFromRepo = _valueSetVersionRepository.GetValueSetVersion(routeParameters.Id);
-            var valueSetFromRepo = _valueSetRepository.GetValueSet(valueSetVersionFromRepo.ValueSetOID);
-
             var valueSetVersion = Mapper.Map<ValueSetVersionForRetrievalDto>(valueSetVersionFromRepo);
-            valueSetVersion.Code = valueSetFromRepo.ValueSetCode;
-            valueSetVersion.Name = valueSetFromRepo.ValueSetName;
-            valueSetVersion.Definition = valueSetFromRepo.DefinitionText;
-
             return Ok(valueSetVersion);
         }
     }

@@ -27,7 +27,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         private readonly ICodeSystemRepository _codeSystemRepository;
 
         public ValueSetVersionCollectionController(
-            ILogger<ValueSetVersionCollectionController> logger, 
+            ILogger<ValueSetVersionCollectionController> logger,
             IValueSetRepository valueSetRepository,
             IValueSetVersionRepository valueSetVersionRepository,
             IValueSetConceptRepository valueSetConceptRepository,

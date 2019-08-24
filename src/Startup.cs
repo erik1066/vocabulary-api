@@ -64,10 +64,7 @@ namespace Cdc.Vocabulary.WebApi
                 c.IncludeXmlComments(xmlPath);
             });
 
-            services.AddDbContext<ValueSetContext>(o => o.UseInMemoryDatabase("vocabulary"));
-            services.AddDbContext<ValueSetVersionContext>(o => o.UseInMemoryDatabase("vocabulary"));
-            services.AddDbContext<ValueSetConceptContext>(o => o.UseInMemoryDatabase("vocabulary"));
-            services.AddDbContext<CodeSystemContext>(o => o.UseInMemoryDatabase("vocabulary"));
+            services.AddDbContext<VocabularyContext>(o => o.UseInMemoryDatabase("vocabulary"));
 
             // register the repository
             services.AddScoped<IValueSetRepository, ValueSetRepository>();
@@ -78,12 +75,9 @@ namespace Cdc.Vocabulary.WebApi
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(
-            IApplicationBuilder app, 
-            IWebHostEnvironment env, 
-            ValueSetContext valueSetContext,
-            ValueSetVersionContext valueSetVersionContext,
-            ValueSetConceptContext valueSetConceptContext,
-            CodeSystemContext codeSystemContext)
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            VocabularyContext vocabularyContext)
         {
             if (env.IsDevelopment())
             {
@@ -138,11 +132,17 @@ namespace Cdc.Vocabulary.WebApi
                         src.ValueSetVersionID))
                     .ForMember(dest => dest.Oid, opt => opt.MapFrom(src =>
                         src.ValueSetOID))
+                    .ForMember(dest => dest.Code, opt => opt.MapFrom(src =>
+                        src.ValueSetCode))
+                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src =>
+                        src.ValueSetName))
+                    .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
+                        src.DefinitionText))
                     .ForMember(dest => dest.Description, opt => opt.MapFrom(src =>
                         src.ValueSetVersionDescriptionText))
                     .ForMember(dest => dest.Version, opt => opt.MapFrom(src =>
                         src.ValueSetVersionNumber));
-                
+
                 cfg.CreateMap<ValueSet, ValueSetVersionForRetrievalDto>()
                     .ForMember(dest => dest.Name, opt => opt.MapFrom(src =>
                         src.ValueSetName))
@@ -152,10 +152,7 @@ namespace Cdc.Vocabulary.WebApi
                         src.DefinitionText));
             });
 
-            valueSetContext.EnsureSeedDataForContext();
-            valueSetVersionContext.EnsureSeedDataForContext();
-            valueSetConceptContext.EnsureSeedDataForContext();
-            codeSystemContext.EnsureSeedDataForContext();
+            vocabularyContext.EnsureSeedDataForContext();
 
             app.UseEndpoints(endpoints =>
             {

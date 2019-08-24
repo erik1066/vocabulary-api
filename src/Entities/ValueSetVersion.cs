@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Cdc.Vocabulary.Entities
 {
@@ -27,5 +28,14 @@ namespace Cdc.Vocabulary.Entities
         public DateTimeOffset? ExpiryDate { get; set; }
 
         public string ValueSetOID { get; set; } = string.Empty; // FK - ref ValueSet.ValueSetOID
+
+        [NotMapped]
+        public string ValueSetCode { get; set; } = string.Empty;
+
+        [NotMapped]
+        public string ValueSetName { get; set; } = string.Empty;
+
+        [NotMapped]
+        public string DefinitionText { get; set; } = string.Empty;
     }
 }

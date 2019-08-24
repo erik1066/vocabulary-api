@@ -10,9 +10,9 @@ namespace Cdc.Vocabulary.Services
 {
     public sealed class ValueSetRepository : IValueSetRepository
     {
-        private ValueSetContext _context;
+        private VocabularyContext _context;
 
-        public ValueSetRepository(ValueSetContext context)
+        public ValueSetRepository(VocabularyContext context)
         {
             _context = context;
         }

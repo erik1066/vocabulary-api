@@ -10,9 +10,9 @@ namespace Cdc.Vocabulary.Services
 {
     public sealed class CodeSystemRepository : ICodeSystemRepository
     {
-        private CodeSystemContext _context;
+        private VocabularyContext _context;
 
-        public CodeSystemRepository(CodeSystemContext context)
+        public CodeSystemRepository(VocabularyContext context)
         {
             _context = context;
         }
