@@ -18,7 +18,9 @@ namespace Cdc.Vocabulary.WebApi.Models
         /// CDC
         /// </example>
         [Required]
-        [StringLength(64)]
+        [MinLength(1)]
+        [MaxLength(64)]
+        [RegularExpression(@"^[a-zA-Z0-9_\.]*$")]
         [FromRoute(Name = "domain")]
         public string Domain { get; set; } = string.Empty;
     }
