@@ -105,6 +105,14 @@ namespace Cdc.Vocabulary.Services
                         true
                     );
             }
+            if (parameters.ValueSetVersionNumber != null)
+            {
+                collection = collection.Where(c =>
+                    c.ValueSetVersionNumber != null ?
+                        c.ValueSetVersionNumber == parameters.ValueSetVersionNumber :
+                        true
+                    );
+            }
             if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
             {
                 var searchQueryStringForWhereClause = string.Empty;

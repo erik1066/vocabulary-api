@@ -16,7 +16,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
     /// Value set version controller class
     /// </summary>
     [ApiController]
-    [Route("api/1.0/valuesetversion")]
+    [Route("api/valuesetversion")]
     public class ValueSetVersionController : ControllerBase
     {
         private readonly ILogger<ValueSetVersionController> _logger;
@@ -39,7 +39,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             _codeSystemRepository = codeSystemRepository;
         }
 
-        // GET api/1.0/valuesetversion/cdc/5987c62d-410f-df11-80e4-0015173d1785
+        // GET api/valuesetversion/cdc/5987c62d-410f-df11-80e4-0015173d1785
         /// <summary>
         /// Gets a value set version
         /// </summary>

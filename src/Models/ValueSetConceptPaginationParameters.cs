@@ -11,5 +11,8 @@ namespace Cdc.Vocabulary.WebApi.Models
     {
         [FromQuery(Name = "valuesetversionid")]
         public Guid? ValueSetVersionId { get; set; }
+
+        [FromQuery(Name = "valuesetversionnumber")]
+        public int? ValueSetVersionNumber { get; set; }
     }
 }

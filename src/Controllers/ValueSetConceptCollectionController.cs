@@ -17,7 +17,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
     /// Value set controller class
     /// </summary>
     [ApiController]
-    [Route("api/1.0/valuesetconceptcollection")]
+    [Route("api/valuesetconceptcollection")]
     public class ValueSetConceptCollectionController : ControllerBase
     {
         private readonly ILogger<ValueSetConceptCollectionController> _logger;
@@ -40,7 +40,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             _codeSystemRepository = codeSystemRepository;
         }
 
-        // GET api/1.0/valuesetconceptcollection/cdc
+        // GET api/valuesetconceptcollection/cdc
         /// <summary>
         /// Gets a collection of value set concepts
         /// </summary>

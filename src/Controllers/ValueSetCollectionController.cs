@@ -17,7 +17,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
     /// Value set controller class
     /// </summary>
     [ApiController]
-    [Route("api/1.0/valuesetcollection")]
+    [Route("api/valuesetcollection")]
     public class ValueSetCollectionController : ControllerBase
     {
         private readonly ILogger<ValueSetCollectionController> _logger;
@@ -29,7 +29,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             _valueSetRepository = valueSetRepository;
         }
 
-        // GET api/1.0/valuesetcollection/cdc
+        // GET api/valuesetcollection/cdc
         /// <summary>
         /// Gets a collection of value sets
         /// </summary>
@@ -77,14 +77,14 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             return Ok(valueSetsToReturn);
         }
 
-        // POST api/1.0/valuesetcollection/cdc
+        // POST api/valuesetcollection/cdc
         /// <summary>
         /// Inserts a collection of value sets
         /// </summary>
         /// <remarks>
         /// Sample request to insert a collection of value sets:
         ///
-        ///     POST /api/1.0/valuesetcollection/cdc
+        ///     POST /api/valuesetcollection/cdc
         ///     {
         ///         "code": "PHVS_YesNoUnknown_CDC",
         ///         "definition": "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
@@ -149,7 +149,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             );
         }
 
-        // GET api/1.0/valuesetcollection/cdc/(3a23284c-1e0c-4693-9d15-615060065d0e,40d660e2-6061-496f-a28d-5a4dc42fbf8d)
+        // GET api/valuesetcollection/cdc/(3a23284c-1e0c-4693-9d15-615060065d0e,40d660e2-6061-496f-a28d-5a4dc42fbf8d)
         /// <summary>
         /// Gets a collection of value sets
         /// </summary>

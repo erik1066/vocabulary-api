@@ -16,7 +16,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
     /// Value set controller class
     /// </summary>
     [ApiController]
-    [Route("api/1.0/valueset")]
+    [Route("api/valueset")]
     public class ValueSetController : ControllerBase
     {
         private readonly ILogger<ValueSetController> _logger;
@@ -28,7 +28,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             _valueSetRepository = valueSetRepository;
         }
 
-        // GET api/1.0/valueset/cdc/PHVS_YesNoUnknown_CDC
+        // GET api/valueset/cdc/PHVS_YesNoUnknown_CDC
         /// <summary>
         /// Gets a value set
         /// </summary>
@@ -57,14 +57,14 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             return Ok(valueSet);
         }
 
-        // POST api/1.0/valueset/cdc
+        // POST api/valueset/cdc
         /// <summary>
         /// Inserts a value set
         /// </summary>
         /// <remarks>
         /// Sample request to insert a value set:
         ///
-        ///     POST /api/1.0/valueset/cdc
+        ///     POST /api/valueset/cdc
         ///     {
         ///         "code": "PHVS_YesNoUnknown_CDC",
         ///         "definition": "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
@@ -112,14 +112,14 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             );
         }
 
-        // PUT api/1.0/valueset/cdc/3a23284c-1e0c-4693-9d15-615060065d0e
+        // PUT api/valueset/cdc/3a23284c-1e0c-4693-9d15-615060065d0e
         /// <summary>
         /// Replaces a value set
         /// </summary>
         /// <remarks>
         /// Sample request to replace a value set:
         ///
-        ///     PUT /api/1.0/valueset/cdc/3a23284c-1e0c-4693-9d15-615060065d0e
+        ///     PUT /api/valueset/cdc/3a23284c-1e0c-4693-9d15-615060065d0e
         ///     {
         ///         "code": "PHVS_YesNoUnknown_CDC",
         ///         "definition": "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
@@ -167,7 +167,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             return NoContent();
         }
 
-        // DELETE api/1.0/valueset/cdc/3a23284c-1e0c-4693-9d15-615060065d0e
+        // DELETE api/valueset/cdc/3a23284c-1e0c-4693-9d15-615060065d0e
         /// <summary>
         /// Deletes a value set
         /// </summary>
