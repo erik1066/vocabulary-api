@@ -9,7 +9,7 @@ namespace Cdc.Vocabulary.WebApi.Models
     /// </summary>
     public class PaginationParameters
     {
-        [Range(0, Int32.MaxValue)]
+        [Range(1, Int32.MaxValue)]
         [FromQuery(Name = "pageNumber")]
         public int PageNumber { get; set; } = 1;
 

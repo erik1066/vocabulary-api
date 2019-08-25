@@ -8,18 +8,6 @@ using Cdc.Vocabulary.WebApi.Models;
 
 namespace Cdc.Vocabulary.Services
 {
-    public class ValueSetConceptInfo
-    {
-        public ValueSetConcept ValueSetConcept { get; set; }
-        public ValueSetVersion ValueSetVersion { get; set; }
-    }
-
-    public class ValueSetInfo
-    {
-        public ValueSetConceptInfo ValueSetConceptInfo { get; set; }
-        public ValueSet ValueSet { get; set; }
-    }
-
     public sealed class ValueSetConceptRepository : IValueSetConceptRepository
     {
         private VocabularyContext _context;
@@ -29,7 +17,7 @@ namespace Cdc.Vocabulary.Services
             _context = context;
         }
 
-        public PagedList<ValueSetConcept> GetValueSetConcepts(ValueSetVersionPaginationParameters parameters)
+        public PagedList<ValueSetConcept> GetValueSetConcepts(ValueSetConceptPaginationParameters parameters)
         {
             var collection = _context.ValueSetConcepts
                 .Join(_context.ValueSetVersions,
@@ -48,7 +36,8 @@ namespace Cdc.Vocabulary.Services
                         CodeSystemOID = vsc.CodeSystemOID,
                         ConceptCode = vsc.ConceptCode,
                         Sequence = vsc.Sequence,
-                        ValueSetOID = vsv.ValueSetOID
+                        ValueSetOID = vsv.ValueSetOID,
+                        ValueSetVersionNumber = vsv.ValueSetVersionNumber
                     })
                 .Join(_context.ValueSets,
                     vsc => vsc.ValueSetOID,
@@ -67,6 +56,7 @@ namespace Cdc.Vocabulary.Services
                         ConceptCode = vsc.ConceptCode,
                         Sequence = vsc.Sequence,
                         ValueSetOID = vsc.ValueSetOID,
+                        ValueSetVersionNumber = vsc.ValueSetVersionNumber,
                         ValueSetCode = vs.ValueSetCode
                     })
                 .Join(_context.CodeSystems,
@@ -86,19 +76,34 @@ namespace Cdc.Vocabulary.Services
                         ConceptCode = vsc.ConceptCode,
                         Sequence = vsc.Sequence,
                         ValueSetOID = vsc.ValueSetOID,
+                        ValueSetVersionNumber = vsc.ValueSetVersionNumber,
                         ValueSetCode = vsc.ValueSetCode,
                         HL70396Identifier = cs.HL70396Identifier
                     });
 
-            // var items1 = collection.Take(20).ToList();
-
             if (!string.IsNullOrWhiteSpace(parameters.Code))
             {
-                collection = collection.Where(c => c.ValueSetCode != null ? c.ValueSetCode.Equals(parameters.Code, StringComparison.OrdinalIgnoreCase) : false);
+                collection = collection.Where(c =>
+                    c.ValueSetCode != null ?
+                        c.ValueSetCode.Equals(parameters.Code, StringComparison.OrdinalIgnoreCase) :
+                        true
+                    );
             }
             if (!string.IsNullOrWhiteSpace(parameters.Oid))
             {
-                collection = collection.Where(c => c.ValueSetOID != null ? c.ValueSetOID.Equals(parameters.Code) : false);
+                collection = collection.Where(c =>
+                    c.ValueSetOID != null ?
+                        c.ValueSetOID.Equals(parameters.Oid) :
+                        true
+                    );
+            }
+            if (parameters.ValueSetVersionId != null)
+            {
+                collection = collection.Where(c =>
+                    c.ValueSetVersionID != null ?
+                        c.ValueSetVersionID == parameters.ValueSetVersionId :
+                        true
+                    );
             }
             if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
             {

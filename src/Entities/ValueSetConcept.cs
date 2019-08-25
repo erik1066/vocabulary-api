@@ -40,5 +40,8 @@ namespace Cdc.Vocabulary.Entities
 
         [NotMapped]
         public string? ValueSetCode { get; set; }
+
+        [NotMapped]
+        public int? ValueSetVersionNumber { get; set; }
     }
 }

@@ -55,7 +55,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         [SwaggerResponse(500)]
         public ActionResult<IEnumerable<ValueSetForRetrievalDto>> GetValueSetConcepts(
             [FromRoute] DomainRouteParameters routeParameters,
-            [FromQuery] ValueSetVersionPaginationParameters paginationParameters)
+            [FromQuery] ValueSetConceptPaginationParameters paginationParameters)
         {
             if (!ModelState.IsValid)
             {

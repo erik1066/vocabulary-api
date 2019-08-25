@@ -68,5 +68,10 @@ namespace Cdc.Vocabulary.WebApi.Models
         /// TODO: Fill this in
         /// </summary>
         public int? Sequence { get; set; }
+
+        /// <summary>
+        /// TODO: Fill this in
+        /// </summary>
+        public int? ValueSetVersionNumber { get; set; }
     }
 }
