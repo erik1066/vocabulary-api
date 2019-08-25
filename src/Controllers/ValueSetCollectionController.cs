@@ -68,7 +68,10 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 nextPageLink = valueSetEntities.HasNext ? nextPageLink : string.Empty
             };
 
-            Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+            if (Response != null) // can be null in unit test harness
+            {
+                Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+            }
 
             var valueSetsToReturn = Mapper.Map<IEnumerable<ValueSetForRetrievalDto>>(valueSetEntities);
             return Ok(valueSetsToReturn);

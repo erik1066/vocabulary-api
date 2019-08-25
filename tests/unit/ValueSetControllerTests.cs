@@ -12,13 +12,12 @@ using Cdc.Vocabulary.Entities;
 
 namespace Cdc.Vocabulary.Tests
 {
-    public class ValueSetControllerTests : IClassFixture<ValueSetControllerFixture>
+    public class ValueSetControllerTests
     {
-        ValueSetControllerFixture _fixture;
+        ControllerFixture _fixture = Common.Fixture;
 
-        public ValueSetControllerTests(ValueSetControllerFixture fixture)
+        public ValueSetControllerTests()
         {
-            this._fixture = fixture;
         }
 
         [Theory]
@@ -31,7 +30,7 @@ namespace Cdc.Vocabulary.Tests
         {
             // Arrange
             var guid = new Guid(id);
-            var controller = new ValueSetController(_fixture.Logger, _fixture.ValueSetRepository);
+            var controller = new ValueSetController(_fixture.ValueSetControllerLogger, _fixture.ValueSetRepository);
 
             // Act
             var getResult = controller.Get(new ValueSetRouteParameters() { Domain = domain, Id = guid });
@@ -55,7 +54,7 @@ namespace Cdc.Vocabulary.Tests
         {
             // Arrange
             var guid = new Guid(id);
-            var controller = new ValueSetController(_fixture.Logger, _fixture.ValueSetRepository);
+            var controller = new ValueSetController(_fixture.ValueSetControllerLogger, _fixture.ValueSetRepository);
 
             // Act
             var getResult = controller.Get(new ValueSetRouteParameters() { Domain = domain, Id = guid });
@@ -65,50 +64,6 @@ namespace Cdc.Vocabulary.Tests
 
             // Assert
             Assert.Equal(404, result.StatusCode);
-        }
-    }
-
-    public class ValueSetControllerFixture : IDisposable
-    {
-        public ILogger<ValueSetController> Logger { get; private set; }
-        public IValueSetRepository ValueSetRepository { get; private set; }
-
-        public ValueSetControllerFixture()
-        {
-            Logger = new Mock<ILogger<ValueSetController>>().Object;
-            ValueSetRepository = CreateSUT();
-
-            AutoMapper.Mapper.Initialize(cfg =>
-            {
-                cfg.CreateMap<ValueSet, ValueSetForRetrievalDto>()
-                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src =>
-                        src.ValueSetID))
-                    .ForMember(dest => dest.Code, opt => opt.MapFrom(src =>
-                        src.ValueSetCode))
-                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src =>
-                        src.ValueSetName))
-                    .ForMember(dest => dest.Oid, opt => opt.MapFrom(src =>
-                        src.ValueSetOID))
-                    .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
-                        src.DefinitionText));
-            });
-        }
-
-        public void Dispose()
-        {
-        }
-
-        private ValueSetRepository CreateSUT()
-        {
-            var dbOptions = new DbContextOptionsBuilder<VocabularyContext>()
-                                .UseInMemoryDatabase(databaseName: "vocabulary")
-                                .Options;
-
-            var context = new VocabularyContext(dbOptions);
-
-            context.EnsureSeedDataForContext();
-
-            return new ValueSetRepository(context);
         }
     }
 }
