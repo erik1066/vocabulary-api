@@ -63,6 +63,7 @@ namespace Cdc.Vocabulary.WebApi
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+                c.DescribeAllEnumsAsStrings(); // ensure enums show up with the labels, not their integer values
             });
 
             services.AddHealthChecks();

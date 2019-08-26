@@ -117,12 +117,21 @@ namespace Cdc.Vocabulary.Services
             {
                 var searchQueryStringForWhereClause = string.Empty;
                 searchQueryStringForWhereClause = parameters.SearchQuery.Trim().ToLowerInvariant();
-                collection = collection.Where(v =>
-                    v.ValueSetConceptDefinitionText.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
-                    v.CDCPreferredDesignation.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
-                    v.CDCPreferredDesignation.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
-                    v.ConceptCode.ToLowerInvariant().Contains(searchQueryStringForWhereClause)
-                );
+
+                if (parameters.SearchType == MatchType.Contains)
+                {
+                    collection = collection.Where(v =>
+                        v.ValueSetConceptDefinitionText.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
+                        v.CDCPreferredDesignation.ToLowerInvariant().Contains(searchQueryStringForWhereClause)
+                    );
+                }
+                else if (parameters.SearchType == MatchType.StartsWith)
+                {
+                    collection = collection.Where(v =>
+                        v.ValueSetConceptDefinitionText.ToLowerInvariant().StartsWith(searchQueryStringForWhereClause) ||
+                        v.CDCPreferredDesignation.ToLowerInvariant().StartsWith(searchQueryStringForWhereClause)
+                    );
+                }
             }
 
             return PagedList<ValueSetConcept>.Create(collection,

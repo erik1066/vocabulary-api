@@ -19,5 +19,14 @@ namespace Cdc.Vocabulary.WebApi.Models
 
         [FromQuery(Name = "searchQuery")]
         public string SearchQuery { get; set; } = string.Empty;
+
+        [FromQuery(Name = "searchType")]
+        public MatchType SearchType { get; set; } = MatchType.Contains;
+    }
+
+    public enum MatchType
+    {
+        Contains,
+        StartsWith
     }
 }
