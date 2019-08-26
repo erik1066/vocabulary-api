@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
@@ -64,6 +65,8 @@ namespace Cdc.Vocabulary.WebApi
                 c.IncludeXmlComments(xmlPath);
             });
 
+            services.AddHealthChecks();
+
             services.AddDbContext<VocabularyContext>(o => o.UseInMemoryDatabase("vocabulary"));
 
             // register the repository
@@ -105,6 +108,7 @@ namespace Cdc.Vocabulary.WebApi
 
             app.UseAuthorization();
 
+            #region Automapper
             AutoMapper.Mapper.Initialize(cfg =>
             {
                 cfg.CreateMap<ValueSet, ValueSetForRetrievalDto>()
@@ -174,11 +178,28 @@ namespace Cdc.Vocabulary.WebApi
                         src.HL70396Identifier))
                     .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
                         src.ValueSetConceptDefinitionText));
-
-
             });
+            #endregion // Automapper
 
             vocabularyContext.EnsureSeedDataForContext();
+
+            #region Health checks
+            app.UseHealthChecks("/health/live", new HealthCheckOptions
+            {
+                // Exclude all checks, just return a 200.
+                Predicate = (check) => false,
+                AllowCachingResponses = false
+            });
+
+            app.UseHealthChecks("/health/ready", new HealthCheckOptions
+            {
+                // TODO: Add check for database(s) and OAuth2 provider in here
+                // TODO: Perhaps secure this endpoint?
+                // TODO: Look into adding memory checks
+                Predicate = (check) => false,
+                AllowCachingResponses = false
+            });
+            #endregion // Health checks
 
             app.UseResponseCaching();
 
