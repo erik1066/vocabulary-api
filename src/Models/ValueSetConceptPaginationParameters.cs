@@ -13,6 +13,7 @@ namespace Cdc.Vocabulary.WebApi.Models
         public Guid? ValueSetVersionId { get; set; }
 
         [FromQuery(Name = "valuesetversionnumber")]
-        public int? ValueSetVersionNumber { get; set; }
+        [RegularExpression("^([0-9]*|latest)$")]
+        public string? ValueSetVersionNumber { get; set; }
     }
 }

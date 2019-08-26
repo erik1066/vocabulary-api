@@ -105,14 +105,6 @@ namespace Cdc.Vocabulary.Services
                         true
                     );
             }
-            if (parameters.ValueSetVersionNumber != null)
-            {
-                collection = collection.Where(c =>
-                    c.ValueSetVersionNumber != null ?
-                        c.ValueSetVersionNumber == parameters.ValueSetVersionNumber :
-                        true
-                    );
-            }
             if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
             {
                 var searchQueryStringForWhereClause = string.Empty;
@@ -132,6 +124,30 @@ namespace Cdc.Vocabulary.Services
                         v.CDCPreferredDesignation.ToLowerInvariant().StartsWith(searchQueryStringForWhereClause)
                     );
                 }
+            }
+
+            if (parameters.ValueSetVersionNumber != null)
+            {
+                int versionNumber = 1;
+
+                if (parameters.ValueSetVersionNumber.Equals("latest", StringComparison.OrdinalIgnoreCase))
+                {
+                    var max = collection.Max(v => v.ValueSetVersionNumber);
+                    if (max.HasValue)
+                    {
+                        versionNumber = max.Value;
+                    }
+                }
+                else
+                {
+                    int.TryParse(parameters.ValueSetVersionNumber, out versionNumber);
+                }
+
+                collection = collection.Where(c =>
+                    c.ValueSetVersionNumber != null ?
+                        c.ValueSetVersionNumber == versionNumber :
+                        true
+                    );
             }
 
             return PagedList<ValueSetConcept>.Create(collection,
