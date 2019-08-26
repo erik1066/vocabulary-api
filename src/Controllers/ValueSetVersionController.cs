@@ -51,7 +51,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
         [SwaggerResponse(404, "Not found", null)]
         [SwaggerResponse(500)]
-        [ResponseCache(VaryByHeader = "User-Agent", Location = ResponseCacheLocation.Any, Duration = Int32.MaxValue, NoStore = false)]
+        [ResponseCache(VaryByHeader = "User-Agent", Location = ResponseCacheLocation.Any, Duration = 86_400, NoStore = false)]
         public ActionResult<ValueSetVersionForRetrievalDto> GetValueSetVersion([FromRoute] ValueSetRouteParameters routeParameters)
         {
             if (!ModelState.IsValid)

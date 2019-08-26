@@ -141,7 +141,6 @@ namespace Cdc.Vocabulary.Services
 
         public IEnumerable<ValueSetConcept> GetValueSetConcepts(IEnumerable<Guid> ids)
         {
-
             return _context.ValueSetConcepts.Where(a => ids.Contains(a.ValueSetConceptID))
                 .OrderBy(a => a.ConceptCode)
                 .ToList();

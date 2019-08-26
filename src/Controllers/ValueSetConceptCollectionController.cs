@@ -53,6 +53,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
         [SwaggerResponse(404, "Not found", null)]
         [SwaggerResponse(500)]
+        [ResponseCache(VaryByHeader = "User-Agent", Location = ResponseCacheLocation.Client, Duration = 600, NoStore = false)]
         public ActionResult<IEnumerable<ValueSetForRetrievalDto>> GetValueSetConcepts(
             [FromRoute] DomainRouteParameters routeParameters,
             [FromQuery] ValueSetConceptPaginationParameters paginationParameters)
