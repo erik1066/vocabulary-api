@@ -10,9 +10,9 @@ namespace Cdc.Vocabulary.Services
 {
     public sealed class ValueSetRepository : IValueSetRepository
     {
-        private ValueSetContext _context;
+        private VocabularyContext _context;
 
-        public ValueSetRepository(ValueSetContext context)
+        public ValueSetRepository(VocabularyContext context)
         {
             _context = context;
         }
@@ -53,11 +53,21 @@ namespace Cdc.Vocabulary.Services
             return _context.ValueSets.FirstOrDefault(a => a.ValueSetID == id);
         }
 
+        public ValueSet GetValueSet(string id)
+        {
+            if (id.Contains(".") && !id.Contains("_"))
+            {
+                return _context.ValueSets.FirstOrDefault(a => a.ValueSetOID == id);
+            }
+            else
+            {
+                return _context.ValueSets.FirstOrDefault(a => a.ValueSetCode == id);
+            }
+        }
+
         public void AddValueSet(ValueSet valueSet)
         {
             valueSet.ValueSetID = Guid.NewGuid();
-            valueSet.ValueSetCreatedDate = DateTime.Now;
-            valueSet.ValueSetLastRevisionDate = DateTime.Now;
             valueSet.StatusDate = DateTime.Now;
             _context.ValueSets.Add(valueSet);
         }
@@ -70,7 +80,6 @@ namespace Cdc.Vocabulary.Services
         public void UpdateValueSet(ValueSet valueSet)
         {
             // no code in this implementation
-            valueSet.ValueSetLastRevisionDate = DateTime.Now;
         }
 
         public bool ValueSetExists(Guid id)

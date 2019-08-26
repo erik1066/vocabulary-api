@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
@@ -62,16 +63,27 @@ namespace Cdc.Vocabulary.WebApi
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+                c.DescribeAllEnumsAsStrings(); // ensure enums show up with the labels, not their integer values
             });
 
-            services.AddDbContext<ValueSetContext>(o => o.UseInMemoryDatabase("vocabulary"));
+            services.AddHealthChecks();
+
+            services.AddDbContext<VocabularyContext>(o => o.UseInMemoryDatabase("vocabulary"));
 
             // register the repository
             services.AddScoped<IValueSetRepository, ValueSetRepository>();
+            services.AddScoped<IValueSetVersionRepository, ValueSetVersionRepository>();
+            services.AddScoped<IValueSetConceptRepository, ValueSetConceptRepository>();
+            services.AddScoped<ICodeSystemRepository, CodeSystemRepository>();
+
+            services.AddResponseCaching();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ValueSetContext valueSetContext)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            VocabularyContext vocabularyContext)
         {
             if (env.IsDevelopment())
             {
@@ -97,6 +109,7 @@ namespace Cdc.Vocabulary.WebApi
 
             app.UseAuthorization();
 
+            #region Automapper
             AutoMapper.Mapper.Initialize(cfg =>
             {
                 cfg.CreateMap<ValueSet, ValueSetForRetrievalDto>()
@@ -108,12 +121,8 @@ namespace Cdc.Vocabulary.WebApi
                         src.ValueSetName))
                     .ForMember(dest => dest.Oid, opt => opt.MapFrom(src =>
                         src.ValueSetOID))
-                    .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src =>
-                        src.ValueSetCreatedDate))
                     .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
-                        src.DefinitionText))
-                    .ForMember(dest => dest.LastRevisionDate, opt => opt.MapFrom(src =>
-                        src.ValueSetLastRevisionDate));
+                        src.DefinitionText));
 
                 cfg.CreateMap<ValueSetForInsertionDto, ValueSet>()
                     .ForMember(dest => dest.DefinitionText, opt => opt.MapFrom(src =>
@@ -124,9 +133,76 @@ namespace Cdc.Vocabulary.WebApi
                         src.Name))
                     .ForMember(dest => dest.ValueSetOID, opt => opt.MapFrom(src =>
                         src.Oid));
+
+                cfg.CreateMap<ValueSetVersion, ValueSetVersionForRetrievalDto>()
+                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src =>
+                        src.ValueSetVersionID))
+                    .ForMember(dest => dest.Oid, opt => opt.MapFrom(src =>
+                        src.ValueSetOID))
+                    .ForMember(dest => dest.Code, opt => opt.MapFrom(src =>
+                        src.ValueSetCode))
+                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src =>
+                        src.ValueSetName))
+                    .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
+                        src.DefinitionText))
+                    .ForMember(dest => dest.Description, opt => opt.MapFrom(src =>
+                        src.ValueSetVersionDescriptionText))
+                    .ForMember(dest => dest.Version, opt => opt.MapFrom(src =>
+                        src.ValueSetVersionNumber));
+
+                cfg.CreateMap<ValueSet, ValueSetVersionForRetrievalDto>()
+                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src =>
+                        src.ValueSetName))
+                    .ForMember(dest => dest.Code, opt => opt.MapFrom(src =>
+                        src.ValueSetCode))
+                    .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
+                        src.DefinitionText));
+
+                cfg.CreateMap<ValueSetConcept, ValueSetConceptForRetrievalDto>()
+                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src =>
+                        src.ValueSetConceptID))
+                    .ForMember(dest => dest.CodeSystemOid, opt => opt.MapFrom(src =>
+                        src.CodeSystemOID))
+                    .ForMember(dest => dest.ValueSetVersionId, opt => opt.MapFrom(src =>
+                        src.ValueSetVersionID))
+                    .ForMember(dest => dest.Code, opt => opt.MapFrom(src =>
+                        src.ConceptCode))
+                    .ForMember(dest => dest.ScopeNote, opt => opt.MapFrom(src =>
+                        src.ScopeNoteText))
+                    .ForMember(dest => dest.Status, opt => opt.MapFrom(src =>
+                        src.ValueSetConceptStatusCode))
+                    .ForMember(dest => dest.StatusDate, opt => opt.MapFrom(src =>
+                        src.ValueSetConceptStatusDate))
+                    .ForMember(dest => dest.CdcPreferredDesignation, opt => opt.MapFrom(src =>
+                        src.CDCPreferredDesignation))
+                    .ForMember(dest => dest.Hl70396Identifier, opt => opt.MapFrom(src =>
+                        src.HL70396Identifier))
+                    .ForMember(dest => dest.Definition, opt => opt.MapFrom(src =>
+                        src.ValueSetConceptDefinitionText));
+            });
+            #endregion // Automapper
+
+            vocabularyContext.EnsureSeedDataForContext();
+
+            #region Health checks
+            app.UseHealthChecks("/health/live", new HealthCheckOptions
+            {
+                // Exclude all checks, just return a 200.
+                Predicate = (check) => false,
+                AllowCachingResponses = false
             });
 
-            valueSetContext.EnsureSeedDataForContext();
+            app.UseHealthChecks("/health/ready", new HealthCheckOptions
+            {
+                // TODO: Add check for database(s) and OAuth2 provider in here
+                // TODO: Perhaps secure this endpoint?
+                // TODO: Look into adding memory checks
+                Predicate = (check) => false,
+                AllowCachingResponses = false
+            });
+            #endregion // Health checks
+
+            app.UseResponseCaching();
 
             app.UseEndpoints(endpoints =>
             {

@@ -6,7 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Vocabulary Service</title>
 <style type="text/css">
-    html { font-size: 0.9rem;  }
+    @import url(http://fonts.googleapis.com/css?family=Open+Sans:300italic,300);
+    html { font-size: 0.9rem; font-family: 'Open Sans', Helvetica, sans-serif; }
     @media screen and (min-width: 32rem) and (max-width: 48rem) { html { font-size: 0.8rem; } }
     @media screen and (min-width: 48rem) { html { font-size: 0.9rem; } }
     body { line-height: 1.85; }
@@ -29,13 +30,12 @@
     .footer-img { width: 147px; }
     button { float: right; background: #f1f1f1; border: none; padding: 10px; letter-spacing: 0.02em; outline: none; -webkit-transition: background .15s ease-in-out; -moz-transition: background .15s ease-in-out; -ms-transition: background .15s ease-in-out; -o-transition: background .15s ease-in-out; transition: background .15s ease-in-out;}
     button:hover { background: #A7D5FF; outline: none; }
-    @import url(http://fonts.googleapis.com/css?family=Open+Sans:300italic,300);
 </style>
 </head>
 <body>
   <div class="wrapper">
     <header>
-      <h1>Vocabulary Microservice</h1>
+      <h1>Vocabulary Web Service API</h1>
       <p><span class="subtitle">
         A RESTful API for working with public health vocabulary
       </span></p>
@@ -49,7 +49,7 @@
             <li><a href="https://github.com/erik1066/vocabulary-api/blob/master/docs/README.md" target="_blank">Developer how-to and usage guide</a></li>
             <li><a href="https://hub.docker.com/r/biohazard501/vocabulary-api" target="_blank">Docker Hub page</a></li>
             <li><a href="https://github.com/erik1066/vocabulary-api" target="_blank">Source code</a></li>
-            <li><a href="/health/ready">Readiness check</a></li>
+            <li><a href="/health/ready">API health check endpoint</a></li>
           </ul>
         </p>
 

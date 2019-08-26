@@ -7,7 +7,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
     /// Index route controller class
     /// </summary>
     [ApiController]
-    [Route("api/1.0")]
+    [Route("api")]
     [AllowAnonymous]
     public sealed class IndexController : ControllerBase
     {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Cdc.Vocabulary.Entities;
 using Cdc.Vocabulary.WebApi.Helpers;
 using Cdc.Vocabulary.WebApi.Models;
@@ -14,6 +13,8 @@ namespace Cdc.Vocabulary.Services
         IEnumerable<ValueSet> GetValueSets(IEnumerable<Guid> ids);
 
         ValueSet GetValueSet(Guid id);
+
+        ValueSet GetValueSet(string id);
 
         void AddValueSet(ValueSet valueSet);
 

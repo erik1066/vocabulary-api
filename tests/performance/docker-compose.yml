@@ -1,0 +1,17 @@
+version: "2.2"
+services:
+  # mongo:
+  #   image: mongo:3.4.18
+  #   ports:
+  #     - "27017:27017"
+  vocabulary-api:
+    cpus: 1
+    cpu_count: 1
+    cpu_percent: 95
+    mem_limit: 512000000
+    memswap_limit: 512000000
+    image: vocabulary-api
+    ports:
+      - "9090:9090"
+    environment:
+      VOCABULARY_PORT: 9090

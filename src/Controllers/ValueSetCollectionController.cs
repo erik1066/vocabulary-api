@@ -17,7 +17,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
     /// Value set controller class
     /// </summary>
     [ApiController]
-    [Route("api/1.0/valuesetcollection")]
+    [Route("api/valuesetcollection")]
     public class ValueSetCollectionController : ControllerBase
     {
         private readonly ILogger<ValueSetCollectionController> _logger;
@@ -29,7 +29,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             _valueSetRepository = valueSetRepository;
         }
 
-        // GET api/1.0/valuesetcollection/cdc
+        // GET api/valuesetcollection/cdc
         /// <summary>
         /// Gets a collection of value sets
         /// </summary>
@@ -60,28 +60,31 @@ namespace Cdc.Vocabulary.WebApi.Controllers
 
             var paginationMetadata = new
             {
-                totalCount = 2,
-                pageSize = paginationParameters.PageSize,
-                currentPage = 1,
-                totalPages = 1,
-                previousPageLink = previousPageLink,
-                nextPageLink = nextPageLink
+                totalCount = valueSetEntities.TotalCount,
+                pageSize = valueSetEntities.PageSize,
+                currentPage = valueSetEntities.CurrentPage,
+                totalPages = valueSetEntities.TotalPages,
+                previousPageLink = valueSetEntities.HasPrevious ? previousPageLink : string.Empty,
+                nextPageLink = valueSetEntities.HasNext ? nextPageLink : string.Empty
             };
 
-            Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+            if (Response != null) // can be null in unit test harness
+            {
+                Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+            }
 
             var valueSetsToReturn = Mapper.Map<IEnumerable<ValueSetForRetrievalDto>>(valueSetEntities);
             return Ok(valueSetsToReturn);
         }
 
-        // POST api/1.0/valuesetcollection/cdc
+        // POST api/valuesetcollection/cdc
         /// <summary>
         /// Inserts a collection of value sets
         /// </summary>
         /// <remarks>
         /// Sample request to insert a collection of value sets:
         ///
-        ///     POST /api/1.0/valuesetcollection/cdc
+        ///     POST /api/valuesetcollection/cdc
         ///     {
         ///         "code": "PHVS_YesNoUnknown_CDC",
         ///         "definition": "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
@@ -146,7 +149,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             );
         }
 
-        // GET api/1.0/valuesetcollection/cdc/(3a23284c-1e0c-4693-9d15-615060065d0e,40d660e2-6061-496f-a28d-5a4dc42fbf8d)
+        // GET api/valuesetcollection/cdc/(3a23284c-1e0c-4693-9d15-615060065d0e,40d660e2-6061-496f-a28d-5a4dc42fbf8d)
         /// <summary>
         /// Gets a collection of value sets
         /// </summary>
@@ -223,12 +226,6 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                         pageSize = parameters.PageSize
                     });
             }
-        }
-
-        public enum ResourceUriType
-        {
-            PreviousPage,
-            NextPage
         }
     }
 }

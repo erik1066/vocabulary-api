@@ -22,7 +22,7 @@ namespace Cdc.Vocabulary.WebApi.Models
         /// <summary>
         /// The conceptCode text that uniquely identifies this ValueSetConcept within a ValueSetVersion or a CodeSystem.
         /// </summary>
-        public string ConceptCode { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
 
         /// <summary>
         /// The text that describes the scope of this ValueSetConcept
@@ -58,5 +58,20 @@ namespace Cdc.Vocabulary.WebApi.Models
         /// The Name of the CodeSystemConcept which was used as the source for this ValueSetConcept.
         /// </summary>
         public string CodeSystemConceptName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// TODO: Fill this in
+        /// </summary>
+        public string Hl70396Identifier { get; set; } = string.Empty;
+
+        /// <summary>
+        /// TODO: Fill this in
+        /// </summary>
+        public int? Sequence { get; set; }
+
+        /// <summary>
+        /// TODO: Fill this in
+        /// </summary>
+        public int? ValueSetVersionNumber { get; set; }
     }
 }
