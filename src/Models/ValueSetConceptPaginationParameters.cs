@@ -15,5 +15,8 @@ namespace Cdc.Vocabulary.WebApi.Models
         [FromQuery(Name = "valuesetversionnumber")]
         [RegularExpression("^([0-9]*|latest)$")]
         public string? ValueSetVersionNumber { get; set; }
+
+        [FromQuery(Name = "conceptcode")]
+        public string? ConceptCode { get; set; }
     }
 }

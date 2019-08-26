@@ -10,7 +10,7 @@ namespace Cdc.Vocabulary.WebApi.Models
     public class ValueSetRouteParameters : DomainRouteParameters
     {
         /// <summary>
-        /// The ID of the value set.
+        /// The ID of the value set to filter on
         /// </summary>
         [Required]
         [FromRoute(Name = "id")]

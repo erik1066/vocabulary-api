@@ -9,7 +9,6 @@ using Cdc.Vocabulary.WebApi.Helpers;
 using Swashbuckle.AspNetCore.Annotations;
 using Cdc.Vocabulary.Services;
 using AutoMapper;
-using Cdc.Vocabulary.Entities;
 
 namespace Cdc.Vocabulary.WebApi.Controllers
 {
@@ -94,8 +93,8 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                     new
                     {
                         searchQuery = parameters.SearchQuery,
-                        oid = parameters.Oid,
-                        code = parameters.Code,
+                        valueSetOid = parameters.ValueSetOid,
+                        valueSetCode = parameters.ValueSetCode,
                         domain = domainParameters.Domain,
                         pageNumber = parameters.PageNumber - 1,
                         pageSize = parameters.PageSize
@@ -105,8 +104,8 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                     new
                     {
                         searchQuery = parameters.SearchQuery,
-                        oid = parameters.Oid,
-                        code = parameters.Code,
+                        valueSetOid = parameters.ValueSetOid,
+                        valueSetCode = parameters.ValueSetCode,
                         domain = domainParameters.Domain,
                         pageNumber = parameters.PageNumber + 1,
                         pageSize = parameters.PageSize
@@ -116,8 +115,8 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                     new
                     {
                         searchQuery = parameters.SearchQuery,
-                        oid = parameters.Oid,
-                        code = parameters.Code,
+                        valueSetOid = parameters.ValueSetOid,
+                        valueSetCode = parameters.ValueSetCode,
                         domain = domainParameters.Domain,
                         pageNumber = parameters.PageNumber,
                         pageSize = parameters.PageSize
