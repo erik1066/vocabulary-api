@@ -46,6 +46,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         /// <param name="routeParameters">Required route parameters needed for the operation</param>
         /// <returns>ValueSetVersion</returns>
         [HttpGet("{domain}/{id}")]
+        [HttpHead("{domain}/{id}")]
         [Produces("application/json")]
         [SwaggerResponse(200, "Returns a ValueSetVersion", typeof(ValueSetVersionForRetrievalDto))]
         [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
