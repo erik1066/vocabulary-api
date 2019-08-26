@@ -49,14 +49,14 @@ namespace Cdc.Vocabulary.Services
 
             collectionBeforePaging = JoinOnValueSet(collectionBeforePaging);
 
-            if (!string.IsNullOrWhiteSpace(parameters.Oid))
+            if (!string.IsNullOrWhiteSpace(parameters.ValueSetOid))
             {
-                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetOID.Equals(parameters.Oid));
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetOID.Equals(parameters.ValueSetOid));
             }
 
-            if (!string.IsNullOrWhiteSpace(parameters.Code))
+            if (!string.IsNullOrWhiteSpace(parameters.ValueSetCode))
             {
-                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetCode.Equals(parameters.Code, StringComparison.OrdinalIgnoreCase));
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetCode.Equals(parameters.ValueSetCode, StringComparison.OrdinalIgnoreCase));
             }
 
             if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))

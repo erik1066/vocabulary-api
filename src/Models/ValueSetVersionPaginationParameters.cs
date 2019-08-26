@@ -9,10 +9,10 @@ namespace Cdc.Vocabulary.WebApi.Models
     /// </summary>
     public class ValueSetVersionPaginationParameters : PaginationParameters
     {
-        [FromQuery(Name = "oid")]
-        public string Oid { get; set; } = string.Empty;
+        [FromQuery(Name = "valuesetoid")]
+        public string ValueSetOid { get; set; } = string.Empty;
 
-        [FromQuery(Name = "code")]
-        public string Code { get; set; } = string.Empty;
+        [FromQuery(Name = "valuesetcode")]
+        public string ValueSetCode { get; set; } = string.Empty;
     }
 }

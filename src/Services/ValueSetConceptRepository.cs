@@ -81,19 +81,27 @@ namespace Cdc.Vocabulary.Services
                         HL70396Identifier = cs.HL70396Identifier
                     });
 
-            if (!string.IsNullOrWhiteSpace(parameters.Code))
+            if (!string.IsNullOrWhiteSpace(parameters.ValueSetCode))
             {
                 collection = collection.Where(c =>
                     c.ValueSetCode != null ?
-                        c.ValueSetCode.Equals(parameters.Code, StringComparison.OrdinalIgnoreCase) :
+                        c.ValueSetCode.Equals(parameters.ValueSetCode, StringComparison.OrdinalIgnoreCase) :
                         true
                     );
             }
-            if (!string.IsNullOrWhiteSpace(parameters.Oid))
+            if (!string.IsNullOrWhiteSpace(parameters.ValueSetOid))
             {
                 collection = collection.Where(c =>
                     c.ValueSetOID != null ?
-                        c.ValueSetOID.Equals(parameters.Oid) :
+                        c.ValueSetOID.Equals(parameters.ValueSetOid) :
+                        true
+                    );
+            }
+            if (!string.IsNullOrWhiteSpace(parameters.ConceptCode))
+            {
+                collection = collection.Where(c =>
+                    c.ConceptCode != null ?
+                        c.ConceptCode.Equals(parameters.ConceptCode) :
                         true
                     );
             }

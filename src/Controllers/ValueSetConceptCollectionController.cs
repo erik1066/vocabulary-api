@@ -86,7 +86,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             return Ok(valueSetConceptsToReturn);
         }
 
-        private string CreateValueSetResourceUri(DomainRouteParameters domainParameters, ValueSetVersionPaginationParameters parameters, ResourceUriType type)
+        private string CreateValueSetResourceUri(DomainRouteParameters domainParameters, ValueSetConceptPaginationParameters parameters, ResourceUriType type)
         {
             switch (type)
             {
@@ -95,8 +95,11 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                     new
                     {
                         searchQuery = parameters.SearchQuery,
-                        oid = parameters.Oid,
-                        code = parameters.Code,
+                        valueSetOid = parameters.ValueSetOid,
+                        valueSetCode = parameters.ValueSetCode,
+                        valueSetVersionId = parameters.ValueSetVersionId,
+                        valueSetVersionNumber = parameters.ValueSetVersionNumber,
+                        conceptCode = parameters.ConceptCode,
                         domain = domainParameters.Domain,
                         pageNumber = parameters.PageNumber - 1,
                         pageSize = parameters.PageSize
@@ -106,8 +109,11 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                     new
                     {
                         searchQuery = parameters.SearchQuery,
-                        oid = parameters.Oid,
-                        code = parameters.Code,
+                        valueSetOid = parameters.ValueSetOid,
+                        valueSetCode = parameters.ValueSetCode,
+                        valueSetVersionId = parameters.ValueSetVersionId,
+                        valueSetVersionNumber = parameters.ValueSetVersionNumber,
+                        conceptCode = parameters.ConceptCode,
                         domain = domainParameters.Domain,
                         pageNumber = parameters.PageNumber + 1,
                         pageSize = parameters.PageSize
@@ -117,8 +123,11 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                     new
                     {
                         searchQuery = parameters.SearchQuery,
-                        oid = parameters.Oid,
-                        code = parameters.Code,
+                        valueSetOid = parameters.ValueSetOid,
+                        valueSetCode = parameters.ValueSetCode,
+                        valueSetVersionId = parameters.ValueSetVersionId,
+                        valueSetVersionNumber = parameters.ValueSetVersionNumber,
+                        conceptCode = parameters.ConceptCode,
                         domain = domainParameters.Domain,
                         pageNumber = parameters.PageNumber,
                         pageSize = parameters.PageSize
