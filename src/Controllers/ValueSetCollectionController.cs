@@ -77,77 +77,77 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             return Ok(valueSetsToReturn);
         }
 
-        // POST api/valuesetcollection/cdc
-        /// <summary>
-        /// Inserts a collection of value sets
-        /// </summary>
-        /// <remarks>
-        /// Sample request to insert a collection of value sets:
-        ///
-        ///     POST /api/valuesetcollection/cdc
-        ///     {
-        ///         "code": "PHVS_YesNoUnknown_CDC",
-        ///         "definition": "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
-        ///         "name": "Yes No Unknown (YNU)",
-        ///         "oid": "2.16.840.1.114222.4.11.888"
-        ///     }
-        ///
-        /// </remarks>
-        /// <param name="routeParameters">Required route parameters needed for the operation</param>
-        /// <param name="valueSetCollection">The value sets to insert</param>
-        [HttpPost("{domain}")]
-        [Consumes("application/json")]
-        [SwaggerResponse(201, "ValueSets were created successfully")]
-        [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
-        [SwaggerResponse(406, "Invalid content type")]
-        [SwaggerResponse(413, "The request payload is too large")]
-        [SwaggerResponse(415, "Invalid media type")]
-        [SwaggerResponse(500)]
-        public IActionResult Insert(
-            [FromRoute] DomainRouteParameters routeParameters,
-            [FromBody] IEnumerable<ValueSetForInsertionDto> valueSetCollection)
-        {
-            if (valueSetCollection == null)
-            {
-                return BadRequest();
-            }
+        // // POST api/valuesetcollection/cdc
+        // /// <summary>
+        // /// Inserts a collection of value sets
+        // /// </summary>
+        // /// <remarks>
+        // /// Sample request to insert a collection of value sets:
+        // ///
+        // ///     POST /api/valuesetcollection/cdc
+        // ///     {
+        // ///         "code": "PHVS_YesNoUnknown_CDC",
+        // ///         "definition": "Value set used to respond to any question that can be answered Yes, No, or Unknown.",
+        // ///         "name": "Yes No Unknown (YNU)",
+        // ///         "oid": "2.16.840.1.114222.4.11.888"
+        // ///     }
+        // ///
+        // /// </remarks>
+        // /// <param name="routeParameters">Required route parameters needed for the operation</param>
+        // /// <param name="valueSetCollection">The value sets to insert</param>
+        // [HttpPost("{domain}")]
+        // [Consumes("application/json")]
+        // [SwaggerResponse(201, "ValueSets were created successfully")]
+        // [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
+        // [SwaggerResponse(406, "Invalid content type")]
+        // [SwaggerResponse(413, "The request payload is too large")]
+        // [SwaggerResponse(415, "Invalid media type")]
+        // [SwaggerResponse(500)]
+        // public IActionResult Insert(
+        //     [FromRoute] DomainRouteParameters routeParameters,
+        //     [FromBody] IEnumerable<ValueSetForInsertionDto> valueSetCollection)
+        // {
+        //     if (valueSetCollection == null)
+        //     {
+        //         return BadRequest();
+        //     }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //     if (!ModelState.IsValid)
+        //     {
+        //         return BadRequest(ModelState);
+        //     }
 
-            // Map each item from the request body to a DB entity
-            var valueSetEntities = Mapper.Map<IEnumerable<ValueSet>>(valueSetCollection);
+        //     // Map each item from the request body to a DB entity
+        //     var valueSetEntities = Mapper.Map<IEnumerable<ValueSet>>(valueSetCollection);
 
-            // For each entity, add to context
-            foreach (var valueSetEntity in valueSetEntities)
-            {
-                _valueSetRepository.AddValueSet(valueSetEntity);
-            }
+        //     // For each entity, add to context
+        //     foreach (var valueSetEntity in valueSetEntities)
+        //     {
+        //         _valueSetRepository.AddValueSet(valueSetEntity);
+        //     }
 
-            // If save fails on any insert, throw an exception (which will result in a 500, which is correct in this case)
-            if (!_valueSetRepository.Save())
-            {
-                throw new Exception("Creating a value set collection failed on save.");
-            }
+        //     // If save fails on any insert, throw an exception (which will result in a 500, which is correct in this case)
+        //     if (!_valueSetRepository.Save())
+        //     {
+        //         throw new Exception("Creating a value set collection failed on save.");
+        //     }
 
-            // Make sure to collect IDs...
-            var valueSetCollectionToReturn = Mapper.Map<IEnumerable<ValueSetForRetrievalDto>>(valueSetEntities);
-            var idsAsString = string.Join(",",
-                valueSetCollectionToReturn.Select(a => a.Id));
+        //     // Make sure to collect IDs...
+        //     var valueSetCollectionToReturn = Mapper.Map<IEnumerable<ValueSetForRetrievalDto>>(valueSetEntities);
+        //     var idsAsString = string.Join(",",
+        //         valueSetCollectionToReturn.Select(a => a.Id));
 
-            return CreatedAtAction
-            (
-                nameof(Get),
-                new
-                {
-                    domain = routeParameters.Domain,
-                    ids = idsAsString
-                },
-                null
-            );
-        }
+        //     return CreatedAtAction
+        //     (
+        //         nameof(Get),
+        //         new
+        //         {
+        //             domain = routeParameters.Domain,
+        //             ids = idsAsString
+        //         },
+        //         null
+        //     );
+        // }
 
         // GET api/valuesetcollection/cdc/(3a23284c-1e0c-4693-9d15-615060065d0e,40d660e2-6061-496f-a28d-5a4dc42fbf8d)
         /// <summary>
@@ -157,6 +157,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         /// <param name="ids">The IDs of the value sets to retrieve</param>
         /// <returns>ValueSets</returns>
         [HttpGet("{domain}/({ids})")]
+        [HttpHead("{domain}/({ids})")]
         [Produces("application/json")]
         [SwaggerResponse(200, "Returns a ValueSet collection", typeof(IEnumerable<ValueSetForRetrievalDto>))]
         [SwaggerResponse(400, "The provided inputs are invalid", typeof(IDictionary<string, string>))]
