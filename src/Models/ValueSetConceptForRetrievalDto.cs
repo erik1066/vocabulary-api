@@ -10,19 +10,44 @@ namespace Cdc.Vocabulary.WebApi.Models
         public Guid Id { get; set; } = default(Guid);
 
         /// <summary>
-        /// The OID that identifies the CodeSystem with which this ValueSetConcept is associated.
-        /// </summary>
-        public string CodeSystemOid { get; set; } = string.Empty;
-
-        /// <summary>
         /// The GUID that identifies the ValueSetVersion with which this ValueSetConcept is associated.
         /// </summary>
         public string ValueSetVersionId { get; set; } = string.Empty;
 
         /// <summary>
+        /// The version number of the value set to which this concept belongs
+        /// </summary>
+        public int? ValueSetVersionNumber { get; set; }
+
+        /// <summary>
+        /// The code of the value set to which this concept belongs
+        /// </summary>
+        public string ValueSetCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The OID of the value set to which this concept belongs
+        /// </summary>
+        public string ValueSetOid { get; set; } = string.Empty;
+
+        /// <summary>
         /// The conceptCode text that uniquely identifies this ValueSetConcept within a ValueSetVersion or a CodeSystem.
         /// </summary>
         public string Code { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The "preferred term", the designation the CDC believes is most desired for use when representing the concept.
+        /// </summary>
+        public string CdcPreferredDesignation { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The Name of the CodeSystemConcept which was used as the source for this ValueSetConcept.
+        /// </summary>
+        public string CodeSystemConceptName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// TODO: Fill this in
+        /// </summary>
+        public string Hl70396Identifier { get; set; } = string.Empty;
 
         /// <summary>
         /// The text that describes the scope of this ValueSetConcept
@@ -40,11 +65,6 @@ namespace Cdc.Vocabulary.WebApi.Models
         public DateTimeOffset StatusDate { get; set; }
 
         /// <summary>
-        /// The "preferred term", the designation the CDC believes is most desired for use when representing the concept.
-        /// </summary>
-        public string CdcPreferredDesignation { get; set; } = string.Empty;
-
-        /// <summary>
         /// Actual description or synonym name or text provided by SDO for this Concept where the Alternate Designation is defined as a Code and is the PHIN Preferred Term for this Concept.
         /// </summary>
         public string PreferredAlternateCode { get; set; } = string.Empty;
@@ -55,23 +75,13 @@ namespace Cdc.Vocabulary.WebApi.Models
         public string Definition { get; set; } = string.Empty;
 
         /// <summary>
-        /// The Name of the CodeSystemConcept which was used as the source for this ValueSetConcept.
+        /// The OID that identifies the CodeSystem with which this ValueSetConcept is associated.
         /// </summary>
-        public string CodeSystemConceptName { get; set; } = string.Empty;
+        public string CodeSystemOid { get; set; } = string.Empty;
 
         /// <summary>
-        /// TODO: Fill this in
-        /// </summary>
-        public string Hl70396Identifier { get; set; } = string.Empty;
-
-        /// <summary>
-        /// TODO: Fill this in
+        /// A number that indicates the preferred positioning of this concept when the concept is displayed on a client system
         /// </summary>
         public int? Sequence { get; set; }
-
-        /// <summary>
-        /// TODO: Fill this in
-        /// </summary>
-        public int? ValueSetVersionNumber { get; set; }
     }
 }
