@@ -14,11 +14,11 @@ namespace Cdc.Vocabulary.Services
 
         CodeSystem GetCodeSystem(Guid id);
 
-        void AddCodeSystem(CodeSystem codeSystem);
+        // void AddCodeSystem(CodeSystem codeSystem);
 
-        void DeleteCodeSystem(CodeSystem codeSystem);
+        // void DeleteCodeSystem(CodeSystem codeSystem);
 
-        void UpdateCodeSystem(CodeSystem codeSystem);
+        // void UpdateCodeSystem(CodeSystem codeSystem);
 
         bool CodeSystemExists(Guid id);
 

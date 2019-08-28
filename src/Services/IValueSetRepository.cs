@@ -16,11 +16,11 @@ namespace Cdc.Vocabulary.Services
 
         ValueSet GetValueSet(string id);
 
-        void AddValueSet(ValueSet valueSet);
+        // void AddValueSet(ValueSet valueSet);
 
-        void DeleteValueSet(ValueSet valueSet);
+        // void DeleteValueSet(ValueSet valueSet);
 
-        void UpdateValueSet(ValueSet valueSet);
+        // void UpdateValueSet(ValueSet valueSet);
 
         bool ValueSetExists(Guid id);
 

@@ -14,11 +14,11 @@ namespace Cdc.Vocabulary.Services
 
         ValueSetConcept GetValueSetConcept(Guid id);
 
-        void AddValueSetConcept(ValueSetConcept valueSetConcept);
+        // void AddValueSetConcept(ValueSetConcept valueSetConcept);
 
-        void DeleteValueSetConcept(ValueSetConcept valueSetConcept);
+        // void DeleteValueSetConcept(ValueSetConcept valueSetConcept);
 
-        void UpdateValueSetConcept(ValueSetConcept valueSetConcept);
+        // void UpdateValueSetConcept(ValueSetConcept valueSetConcept);
 
         bool ValueSetConceptExists(Guid id);
 

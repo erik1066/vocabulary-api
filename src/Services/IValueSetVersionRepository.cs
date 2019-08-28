@@ -14,11 +14,11 @@ namespace Cdc.Vocabulary.Services
 
         ValueSetVersion GetValueSetVersion(Guid id);
 
-        void AddValueSetVersion(ValueSetVersion valueSetVersion);
+        // void AddValueSetVersion(ValueSetVersion valueSetVersion);
 
-        void DeleteValueSetVersion(ValueSetVersion valueSetVersion);
+        // void DeleteValueSetVersion(ValueSetVersion valueSetVersion);
 
-        void UpdateValueSetVersion(ValueSetVersion valueSetVersion);
+        // void UpdateValueSetVersion(ValueSetVersion valueSetVersion);
 
         bool ValueSetVersionExists(Guid id);
 
