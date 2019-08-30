@@ -9,7 +9,7 @@ WORKDIR /src
 RUN dotnet publish -c Release
 
 # Run stage
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.0-alpine as run
+FROM mcr.microsoft.com/dotnet/core-nightly/aspnet:3.0-alpine as run
 
 RUN apk update && apk upgrade --no-cache
 
@@ -29,4 +29,3 @@ RUN chmod g+rwx /app/Cdc.Vocabulary.WebApi.dll
 USER 1001
 
 ENTRYPOINT [ "dotnet", "Cdc.Vocabulary.WebApi.dll" ]
-
