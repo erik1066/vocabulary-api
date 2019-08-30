@@ -90,6 +90,14 @@ namespace Cdc.Vocabulary.WebApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("X-Frame-Options", "DENY"); // Prevents being loaded in a frame
+                context.Response.Headers.Add("X-Content-Type-Options", "nosniff");  // Prevents Internet Explorer from MIME-sniffing a response away from the declared content-type.
+                context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+                await next();
+            });
+
             app.UseHttpsRedirection();
 
             app.UseDefaultFiles(); // will ensure index.html is returned when no resource is specified; this must come before the UseStaticFiles() line below
