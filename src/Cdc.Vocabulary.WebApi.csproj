@@ -27,10 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.0.0-preview8.19405.11" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="3.0.0-preview8.19405.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.0.0-rc2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="3.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.0.0-rc3" />
     <PackageReference Include="AutoMapper" Version="8.1.1" />
   </ItemGroup>
 
