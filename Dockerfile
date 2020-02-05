@@ -1,5 +1,5 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0-alpine as build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine as build
 
 ENV DOTNET_CLI_TELEMETRY_OPTOUT true
 
@@ -9,7 +9,7 @@ WORKDIR /src
 RUN dotnet publish -c Release
 
 # Run stage
-FROM mcr.microsoft.com/dotnet/core-nightly/aspnet:3.0-alpine as run
+FROM mcr.microsoft.com/dotnet/core-nightly/aspnet:3.1-alpine as run
 
 RUN apk update && apk upgrade --no-cache
 
@@ -20,7 +20,7 @@ ENV VOCABULARY_PORT ${VOCABULARY_PORT}
 EXPOSE ${VOCABULARY_PORT}/tcp
 ENV ASPNETCORE_URLS http://*:${VOCABULARY_PORT}
 
-COPY --from=build /src/bin/Release/netcoreapp3.0/publish /app
+COPY --from=build /src/bin/Release/netcoreapp3.1/publish /app
 WORKDIR /app
 
 # don't run as root user

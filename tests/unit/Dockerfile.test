@@ -1,5 +1,5 @@
 # Test stage
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0 as test
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 as test
 
 ENV DOTNET_CLI_TELEMETRY_OPTOUT true
 
