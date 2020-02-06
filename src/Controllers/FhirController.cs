@@ -120,7 +120,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         /// </remarks>
         /// <returns>FHIR Resource</returns>
         [HttpGet("{type}/{id}/_history/{vid}")]
-        [Produces("application/json")]
+        [Produces("application/fhir+json")]
         [ResponseCache(VaryByHeader = "User-Agent", Location = ResponseCacheLocation.Any, Duration = 86_400, NoStore = false)]
         public IActionResult GetVersionedResourceById(string type, string id, string vid)
         {
@@ -138,7 +138,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             var valueSet = BuildValueSet(valueSetVersionFromRepo, valueSetFromRepo);
 
             string fhirContent = _fhirJsonSerializer.SerializeToString(valueSet);
-            return Content(fhirContent);
+            return Content(fhirContent, "application/fhir+json");
         }
 
         // GET api/fhir/[type]{?[parameters]{&_format=[mime-type]}}
@@ -158,7 +158,6 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         }
 
         #region Private methods
-
         private (Entities.ValueSet ValueSetFromRepo, Entities.ValueSetVersion ValueSetVersionFromRepo) GetValueSetEntities(string id, string vid)
         {
             Entities.ValueSet valueSetFromRepo = new Entities.ValueSet();
