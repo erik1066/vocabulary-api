@@ -10,6 +10,8 @@ namespace Cdc.Vocabulary.Services
     {
         PagedList<ValueSetVersion> GetValueSetVersions(ValueSetVersionPaginationParameters parameters);
 
+        PagedList<ValueSetVersion> GetValueSetVersions(Dictionary<string, string> parameters);
+
         IEnumerable<ValueSetVersion> GetValueSetVersions(IEnumerable<Guid> ids);
 
         ValueSetVersion GetValueSetVersion(Guid id);

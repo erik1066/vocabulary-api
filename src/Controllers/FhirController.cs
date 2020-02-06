@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace Cdc.Vocabulary.WebApi.Controllers
 {
     /// <summary>
-    /// Index route controller class
+    /// Fhir controller class
     /// </summary>
     [ApiController]
     [Route("api/fhir")]
@@ -103,12 +103,12 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         /// <remarks>
         /// See https://www.hl7.org/fhir/http.html#read
         /// </remarks>
-        /// <returns>FHIR Resource</returns>
+        /// <returns>FHIR ValueSet</returns>
         [HttpGet("{type}/{id}")]
-        [Produces("application/json")]
+        [Produces("application/fhir+json")]
         public IActionResult GetResourceById(string type, string id)
         {
-            throw new NotImplementedException();
+            return GetVersionedResourceById(type, id, "latest");
         }
 
         // GET api/fhir/[type]/[id] {?_format=[mime-type]}
@@ -118,7 +118,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         /// <remarks>
         /// See https://www.hl7.org/fhir/http.html#vread
         /// </remarks>
-        /// <returns>FHIR Resource</returns>
+        /// <returns>FHIR ValueSet</returns>
         [HttpGet("{type}/{id}/_history/{vid}")]
         [Produces("application/fhir+json")]
         [ResponseCache(VaryByHeader = "User-Agent", Location = ResponseCacheLocation.Any, Duration = 86_400, NoStore = false)]
@@ -148,13 +148,33 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         /// <remarks>
         /// See https://www.hl7.org/fhir/http.html#search
         /// </remarks>
-        /// <returns>FHIR Resources</returns>
+        /// <returns>FHIR Bundle</returns>
         [HttpGet("{type}")]
         [Produces("application/json")]
-        public IActionResult SearchResources(string type)
+        public IActionResult SearchResources(
+            [FromRoute] string type, 
+            [FromQuery] Dictionary<string, string> parameters)
         {
             var searchparams = Request.GetSearchParams();
-            throw new NotImplementedException();
+            Bundle searchBundle = new Bundle()
+            {
+                Type = Bundle.BundleType.Searchset,
+                Entry = new List<Bundle.EntryComponent>(),
+            };
+
+            var valueSetVersions = _valueSetVersionRepository.GetValueSetVersions(parameters);
+
+            foreach(var valueSetVersionFromRepo in valueSetVersions)
+            {
+                var valueSetFromRepo = _valueSetRepository.GetValueSet(valueSetVersionFromRepo.ValueSetCode);
+                ValueSet valueSet = BuildValueSet(valueSetVersionFromRepo, valueSetFromRepo);
+                Bundle.EntryComponent entry = new Bundle.EntryComponent();
+                entry.Resource = valueSet;
+                searchBundle.Entry.Add(entry);
+            }
+            
+            string fhirContent = _fhirJsonSerializer.SerializeToString(searchBundle);
+            return Content(fhirContent, "application/fhir+json");
         }
 
         #region Private methods
@@ -230,7 +250,9 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                     Value = valueSetVersionFromRepo.ValueSetCode
                 }
             };
-            valueSet.Name = valueSetFromRepo.ValueSetName;
+            valueSet.Name = valueSetFromRepo.ValueSetCode;
+            valueSet.Title = valueSetFromRepo.ValueSetName;
+            valueSet.Description = new Markdown(valueSetFromRepo.DefinitionText);
             valueSet.Publisher = "PHIN_VADS";
             valueSet.DateElement = new FhirDateTime(valueSetVersionFromRepo.StatusDate);
             valueSet.Version = valueSetVersionFromRepo.ValueSetVersionNumber.ToString();

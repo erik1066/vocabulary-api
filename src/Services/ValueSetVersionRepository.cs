@@ -43,6 +43,137 @@ namespace Cdc.Vocabulary.Services
             return collectionBeforePaging;
         }
 
+        public PagedList<ValueSetVersion> GetValueSetVersions(Dictionary<string, string> parameters)
+        {
+            IQueryable<ValueSetVersion> collectionBeforePaging = _context.ValueSetVersions;
+
+            collectionBeforePaging = JoinOnValueSet(collectionBeforePaging);
+
+            if (parameters.ContainsKey("name"))
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetCode.StartsWith(parameters["name"], StringComparison.OrdinalIgnoreCase));
+            }
+            else if (parameters.ContainsKey("name:contains"))
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetCode.Contains(parameters["name:contains"], StringComparison.OrdinalIgnoreCase));
+            }
+            else if (parameters.ContainsKey("name:exact"))
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetCode.Equals(parameters["name:contains"], StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (parameters.ContainsKey("title"))
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetName.StartsWith(parameters["title"], StringComparison.OrdinalIgnoreCase));
+            }
+            else if (parameters.ContainsKey("title:contains"))
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetName.Contains(parameters["title:contains"], StringComparison.OrdinalIgnoreCase));
+            }
+            else if (parameters.ContainsKey("title:exact"))
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetName.Equals(parameters["title:contains"], StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (parameters.ContainsKey("description"))
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.DefinitionText.StartsWith(parameters["description"], StringComparison.OrdinalIgnoreCase));
+            }
+            else if (parameters.ContainsKey("description:contains"))
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.DefinitionText.Contains(parameters["description:contains"], StringComparison.OrdinalIgnoreCase));
+            }
+            else if (parameters.ContainsKey("description:exact"))
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.DefinitionText.Equals(parameters["description:contains"], StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (parameters.ContainsKey("oid"))
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetOID.Equals(parameters["oid"], StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (parameters.ContainsKey("version"))
+            {
+                var versionValueString = parameters["version"];
+
+                bool success = int.TryParse(versionValueString, out int _);
+                if (success)
+                {
+                    versionValueString = "eq" + versionValueString; // if no prefix applied, then assume equals
+                }
+
+                if (versionValueString.Length >= 3)
+                {
+                    success = int.TryParse(versionValueString.Substring(2), out int versionNumber);
+                    string op = versionValueString.Substring(0, 2);
+
+                    switch (op)
+                    {
+                        case "ge":
+                            collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetVersionNumber >= versionNumber);
+                            break;
+                        case "gt":
+                            collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetVersionNumber > versionNumber);
+                            break;
+                        case "le":
+                            collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetVersionNumber <= versionNumber);
+                            break;
+                        case "lt":
+                            collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetVersionNumber < versionNumber);
+                            break;
+                        case "ne":
+                            collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetVersionNumber != versionNumber);
+                            break;
+                        case "eq":
+                        default:
+                            collectionBeforePaging = collectionBeforePaging.Where(v => v.ValueSetVersionNumber == versionNumber);
+                            break;
+                    }
+                }
+            }
+
+            if (parameters.ContainsKey("_content"))
+            {
+                var searchQueryStringForWhereClause = string.Empty;
+                searchQueryStringForWhereClause = parameters["_content"].Trim().ToLowerInvariant();
+                collectionBeforePaging = collectionBeforePaging.Where(v =>
+                    v.ValueSetVersionDescriptionText.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
+                    v.DefinitionText.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
+                    v.ValueSetCode.ToLowerInvariant().Contains(searchQueryStringForWhereClause) ||
+                    v.ValueSetName.ToLowerInvariant().Contains(searchQueryStringForWhereClause)
+                );
+            }
+
+            collectionBeforePaging = collectionBeforePaging
+                .OrderBy(a => a.ValueSetCode)
+                .ThenBy(a => a.ValueSetVersionNumber);
+
+            ValueSetVersionPaginationParameters pagingParameters = new ValueSetVersionPaginationParameters(); // TODO: Fix this            
+
+            if (parameters.ContainsKey("_offset") && int.TryParse(parameters["_offset"], out int offset))
+            {
+                pagingParameters.PageNumber = offset;
+            }
+            else
+            {
+                pagingParameters.PageNumber = 0;
+            }
+
+            if (parameters.ContainsKey("_count") && int.TryParse(parameters["_count"], out int count))
+            {
+                pagingParameters.PageSize = count;
+            }
+            else
+            {
+                pagingParameters.PageSize = Int32.MaxValue;
+            }
+
+            return PagedList<ValueSetVersion>.Create(collectionBeforePaging,
+                pagingParameters.PageNumber,
+                pagingParameters.PageSize);
+        }
+
         public PagedList<ValueSetVersion> GetValueSetVersions(ValueSetVersionPaginationParameters parameters)
         {
             IQueryable<ValueSetVersion> collectionBeforePaging = _context.ValueSetVersions;
