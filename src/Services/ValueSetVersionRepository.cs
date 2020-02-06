@@ -151,9 +151,9 @@ namespace Cdc.Vocabulary.Services
 
             ValueSetVersionPaginationParameters pagingParameters = new ValueSetVersionPaginationParameters(); // TODO: Fix this            
 
-            if (parameters.ContainsKey("_offset") && int.TryParse(parameters["_offset"], out int offset))
+            if (parameters.ContainsKey("_page") && int.TryParse(parameters["_page"], out int page))
             {
-                pagingParameters.PageNumber = offset;
+                pagingParameters.PageNumber = page;
             }
             else
             {

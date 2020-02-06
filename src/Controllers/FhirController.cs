@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Spark.Engine.Extensions;
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
 using Cdc.Vocabulary.WebApi.Models;
 using Cdc.Vocabulary.Services;
-using Microsoft.Extensions.Logging;
+using Cdc.Vocabulary.WebApi.Helpers;
+using System.Dynamic;
 
 namespace Cdc.Vocabulary.WebApi.Controllers
 {
@@ -37,9 +39,9 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             FhirVersion = FHIRVersion.N4_0_1,
             Status = PublicationStatus.Active,
             Date = new DateTime(2020, 01, 01).ToString(), // TODO: Convert to proper FHIR date time string
-            Format = new List<string>() { "json "},
-            Rest = new List<CapabilityStatement.RestComponent>() { 
-                new CapabilityStatement.RestComponent() 
+            Format = new List<string>() { "json " },
+            Rest = new List<CapabilityStatement.RestComponent>() {
+                new CapabilityStatement.RestComponent()
                 {
                     Mode = CapabilityStatement.RestfulCapabilityMode.Server,
                     Resource = new List<CapabilityStatement.ResourceComponent>()
@@ -47,7 +49,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                         new CapabilityStatement.ResourceComponent()
                         {
                             Type = ResourceType.ValueSet,
-                            Interaction = new List<CapabilityStatement.ResourceInteractionComponent>() 
+                            Interaction = new List<CapabilityStatement.ResourceInteractionComponent>()
                             {
                                 new CapabilityStatement.ResourceInteractionComponent()
                                 {
@@ -82,7 +84,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             _valueSetConceptRepository = valueSetConceptRepository;
             _codeSystemRepository = codeSystemRepository;
         }
-        
+
         // GET api/fhir/metadata
         /// <summary>
         /// Gets the capabilities statement of this server
@@ -128,7 +130,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             {
                 return NotFound();
             }
-            
+
             var (valueSetFromRepo, valueSetVersionFromRepo) = GetValueSetEntities(id, vid);
             if (valueSetFromRepo == null || valueSetVersionFromRepo == null || valueSetFromRepo.ValueSetOID != valueSetVersionFromRepo.ValueSetOID)
             {
@@ -143,16 +145,16 @@ namespace Cdc.Vocabulary.WebApi.Controllers
 
         // GET api/fhir/[type]{?[parameters]{&_format=[mime-type]}}
         /// <summary>
-        /// Searches FHIR resources
+        /// Searches FHIR ValueSet resources
         /// </summary>
         /// <remarks>
         /// See https://www.hl7.org/fhir/http.html#search
         /// </remarks>
         /// <returns>FHIR Bundle</returns>
-        [HttpGet("{type}")]
+        [HttpGet("{type}", Name = "SearchValueSets")]
         [Produces("application/json")]
-        public IActionResult SearchResources(
-            [FromRoute] string type, 
+        public IActionResult SearchValueSets(
+            [FromRoute] string type,
             [FromQuery] Dictionary<string, string> parameters)
         {
             var searchparams = Request.GetSearchParams();
@@ -164,7 +166,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
 
             var valueSetVersions = _valueSetVersionRepository.GetValueSetVersions(parameters);
 
-            foreach(var valueSetVersionFromRepo in valueSetVersions)
+            foreach (var valueSetVersionFromRepo in valueSetVersions)
             {
                 var valueSetFromRepo = _valueSetRepository.GetValueSet(valueSetVersionFromRepo.ValueSetCode);
                 ValueSet valueSet = BuildValueSet(valueSetVersionFromRepo, valueSetFromRepo);
@@ -172,12 +174,91 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 entry.Resource = valueSet;
                 searchBundle.Entry.Add(entry);
             }
+
+            var previousPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.PreviousPage);
+            var nextPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.NextPage);
+
+            if (parameters.ContainsKey("_count") && int.TryParse(parameters["_count"], out int count) && valueSetVersions.Count < count)
+            {
+                nextPageLink = string.Empty;
+            }
+
+            searchBundle.Link.Add(new Bundle.LinkComponent()
+            {
+                Relation = "next",
+                Url = nextPageLink
+            });
             
+            searchBundle.Link.Add(new Bundle.LinkComponent()
+            {
+                Relation = "prev",
+                Url = previousPageLink
+            });
+
             string fhirContent = _fhirJsonSerializer.SerializeToString(searchBundle);
             return Content(fhirContent, "application/fhir+json");
         }
 
         #region Private methods
+        private string CreateValueSetResourceUri(Dictionary<string, string> parameters, ResourceUriType type)
+        {
+            int page = 0;
+            if (parameters.ContainsKey("_page"))
+            {
+                int.TryParse(parameters["_page"], out page);
+            }
+
+            int previousPageNumber = page - 1;
+            int nextPageNumber = page + 1;
+
+            if (type == ResourceUriType.PreviousPage && previousPageNumber <= 0)
+            {
+                return string.Empty;
+            }
+
+            Dictionary<string, string> prevParameters = new Dictionary<string, string>();
+            foreach (var kvp in parameters)
+            {
+                prevParameters.Add(kvp.Key, kvp.Value);
+            }
+
+            Dictionary<string, string> nextParameters = new Dictionary<string, string>();
+            foreach (var kvp in parameters)
+            {
+                nextParameters.Add(kvp.Key, kvp.Value);
+            }
+
+            if (prevParameters.ContainsKey("_page"))
+            {
+                prevParameters["_page"] = previousPageNumber.ToString();
+            }
+
+            if (nextParameters.ContainsKey("_page"))
+            {
+                nextParameters["_page"] = nextPageNumber.ToString();
+            }
+
+            nextParameters.Add("type", "ValueSet");
+            prevParameters.Add("type", "ValueSet");
+
+            dynamic prev = prevParameters.Aggregate(new ExpandoObject() as IDictionary<string, Object>,
+              (a, p) => { a.Add(p.Key, p.Value); return a; });
+
+            dynamic next = nextParameters.Aggregate(new ExpandoObject() as IDictionary<string, Object>,
+              (a, p) => { a.Add(p.Key, p.Value); return a; });
+
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link(nameof(SearchValueSets),
+                    prev);
+                default:
+                case ResourceUriType.NextPage:
+                    return Url.Link(nameof(SearchValueSets),
+                    next);
+            }
+        }
+
         private (Entities.ValueSet ValueSetFromRepo, Entities.ValueSetVersion ValueSetVersionFromRepo) GetValueSetEntities(string id, string vid)
         {
             Entities.ValueSet valueSetFromRepo = new Entities.ValueSet();
@@ -192,7 +273,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             {
                 valueSetFromRepo = _valueSetRepository.GetValueSet(id);
             }
-            
+
             bool isVidValidGuid = Guid.TryParse(vid, out Guid valueSetVersionGuid);
             if (isVidValidGuid)
             {
@@ -292,7 +373,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             }
 
             valueSet.Expansion.Total = valueSet.Expansion.Contains.Count;
-            valueSet.Expansion.Offset = paginationParameters.PageNumber - 1;
+            valueSet.Expansion.Offset = (paginationParameters.PageNumber - 1) * paginationParameters.PageSize;
 
             return valueSet;
         }
