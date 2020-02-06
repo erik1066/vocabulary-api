@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Authorization;
@@ -127,14 +128,9 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             {
                 return NotFound();
             }
-
-            Guid versionGuid = new Guid(vid);
-            Guid valueSetGuid = new Guid(id);
-
-            var valueSetVersionFromRepo = _valueSetVersionRepository.GetValueSetVersion(versionGuid);
-            var valueSetFromRepo = _valueSetRepository.GetValueSet(valueSetGuid);
-
-            if (valueSetFromRepo.ValueSetOID != valueSetVersionFromRepo.ValueSetOID)
+            
+            var (valueSetFromRepo, valueSetVersionFromRepo) = GetValueSetEntities(id, vid);
+            if (valueSetFromRepo == null || valueSetVersionFromRepo == null || valueSetFromRepo.ValueSetOID != valueSetVersionFromRepo.ValueSetOID)
             {
                 return NotFound();
             }
@@ -162,6 +158,57 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         }
 
         #region Private methods
+
+        private (Entities.ValueSet ValueSetFromRepo, Entities.ValueSetVersion ValueSetVersionFromRepo) GetValueSetEntities(string id, string vid)
+        {
+            Entities.ValueSet valueSetFromRepo = new Entities.ValueSet();
+            Entities.ValueSetVersion valueSetVersionFromRepo = new Entities.ValueSetVersion();
+
+            bool isIdValidGuid = Guid.TryParse(id, out Guid valueSetGuid);
+            if (isIdValidGuid)
+            {
+                valueSetFromRepo = _valueSetRepository.GetValueSet(valueSetGuid);
+            }
+            else
+            {
+                valueSetFromRepo = _valueSetRepository.GetValueSet(id);
+            }
+            
+            bool isVidValidGuid = Guid.TryParse(vid, out Guid valueSetVersionGuid);
+            if (isVidValidGuid)
+            {
+                valueSetVersionFromRepo = _valueSetVersionRepository.GetValueSetVersion(valueSetVersionGuid);
+            }
+            else
+            {
+                ValueSetVersionPaginationParameters parameters = new ValueSetVersionPaginationParameters()
+                {
+                    ValueSetCode = valueSetFromRepo.ValueSetCode,
+                    ValueSetOid = valueSetFromRepo.ValueSetOID,
+                };
+                var valueSetVersionsFromRepo = _valueSetVersionRepository.GetValueSetVersions(parameters);
+
+                if (vid.Equals("latest", StringComparison.OrdinalIgnoreCase))
+                {
+                    valueSetVersionFromRepo = valueSetVersionsFromRepo.OrderBy(v => v.ValueSetVersionNumber).LastOrDefault();
+                }
+                else
+                {
+                    bool success = int.TryParse(vid, out int vidInt);
+                    if (success)
+                    {
+                        valueSetVersionFromRepo = valueSetVersionsFromRepo.FirstOrDefault(v => v.ValueSetVersionNumber == vidInt);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("vid must be a valid UUID, integer, or the string literal 'latest'");
+                    }
+                }
+            }
+
+            return (valueSetFromRepo, valueSetVersionFromRepo);
+        }
+
         private ValueSet BuildValueSet(Entities.ValueSetVersion valueSetVersionFromRepo, Entities.ValueSet valueSetFromRepo)
         {
             var valueSet = new Hl7.Fhir.Model.ValueSet();
