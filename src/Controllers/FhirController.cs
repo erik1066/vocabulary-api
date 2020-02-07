@@ -39,7 +39,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             FhirVersion = FHIRVersion.N4_0_1,
             Status = PublicationStatus.Active,
             Date = new DateTime(2020, 01, 01).ToString(), // TODO: Convert to proper FHIR date time string
-            Format = new List<string>() { "json " },
+            Format = new List<string>() { "json" },
             Rest = new List<CapabilityStatement.RestComponent>() {
                 new CapabilityStatement.RestComponent()
                 {
@@ -137,7 +137,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 return NotFound();
             }
 
-            var valueSet = BuildValueSet(valueSetVersionFromRepo, valueSetFromRepo);
+            var valueSet = BuildValueSet(valueSetVersionFromRepo, valueSetFromRepo, includeConcepts: true);
 
             string fhirContent = _fhirJsonSerializer.SerializeToString(valueSet);
             return Content(fhirContent, "application/fhir+json");
@@ -169,14 +169,16 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             foreach (var valueSetVersionFromRepo in valueSetVersions)
             {
                 var valueSetFromRepo = _valueSetRepository.GetValueSet(valueSetVersionFromRepo.ValueSetCode);
-                ValueSet valueSet = BuildValueSet(valueSetVersionFromRepo, valueSetFromRepo);
+                ValueSet valueSet = BuildValueSet(valueSetVersionFromRepo, valueSetFromRepo, includeConcepts: false);
                 Bundle.EntryComponent entry = new Bundle.EntryComponent();
                 entry.Resource = valueSet;
                 searchBundle.Entry.Add(entry);
             }
-
-            var previousPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.PreviousPage);
-            var nextPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.NextPage);
+            
+            var firstPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.FirstPage, null);
+            var previousPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.PreviousPage, null);
+            var nextPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.NextPage, null);
+            var lastPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.LastPage, valueSetVersions.TotalPages);
 
             if (parameters.ContainsKey("_count") && int.TryParse(parameters["_count"], out int count) && valueSetVersions.Count < count)
             {
@@ -185,8 +187,8 @@ namespace Cdc.Vocabulary.WebApi.Controllers
 
             searchBundle.Link.Add(new Bundle.LinkComponent()
             {
-                Relation = "next",
-                Url = nextPageLink
+                Relation = "first",
+                Url = firstPageLink
             });
             
             searchBundle.Link.Add(new Bundle.LinkComponent()
@@ -195,12 +197,26 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 Url = previousPageLink
             });
 
+            searchBundle.Link.Add(new Bundle.LinkComponent()
+            {
+                Relation = "next",
+                Url = nextPageLink
+            });
+
+            searchBundle.Link.Add(new Bundle.LinkComponent()
+            {
+                Relation = "last",
+                Url = lastPageLink
+            });
+
+            searchBundle.Total = valueSetVersions.TotalCount;
+
             string fhirContent = _fhirJsonSerializer.SerializeToString(searchBundle);
             return Content(fhirContent, "application/fhir+json");
         }
 
         #region Private methods
-        private string CreateValueSetResourceUri(Dictionary<string, string> parameters, ResourceUriType type)
+        private string CreateValueSetResourceUri(Dictionary<string, string> parameters, ResourceUriType type, int? totalPages = null)
         {
             int page = 0;
             if (parameters.ContainsKey("_page"))
@@ -216,6 +232,12 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 return string.Empty;
             }
 
+            Dictionary<string, string> firstParameters = new Dictionary<string, string>();
+            foreach (var kvp in parameters)
+            {
+                firstParameters.Add(kvp.Key, kvp.Value);
+            }
+
             Dictionary<string, string> prevParameters = new Dictionary<string, string>();
             foreach (var kvp in parameters)
             {
@@ -228,6 +250,17 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 nextParameters.Add(kvp.Key, kvp.Value);
             }
 
+            Dictionary<string, string> lastParameters = new Dictionary<string, string>();
+            foreach (var kvp in parameters)
+            {
+                lastParameters.Add(kvp.Key, kvp.Value);
+            }
+
+            if (firstParameters.ContainsKey("_page"))
+            {
+                firstParameters["_page"] = "1";
+            }
+
             if (prevParameters.ContainsKey("_page"))
             {
                 prevParameters["_page"] = previousPageNumber.ToString();
@@ -238,8 +271,18 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 nextParameters["_page"] = nextPageNumber.ToString();
             }
 
+            if (lastParameters.ContainsKey("_page"))
+            {
+                lastParameters["_page"] = totalPages.HasValue ? totalPages.Value.ToString() : string.Empty;
+            }
+
+            firstParameters.Add("type", "ValueSet");
             nextParameters.Add("type", "ValueSet");
             prevParameters.Add("type", "ValueSet");
+            lastParameters.Add("type", "ValueSet");
+
+            dynamic first = firstParameters.Aggregate(new ExpandoObject() as IDictionary<string, Object>,
+              (a, p) => { a.Add(p.Key, p.Value); return a; });
 
             dynamic prev = prevParameters.Aggregate(new ExpandoObject() as IDictionary<string, Object>,
               (a, p) => { a.Add(p.Key, p.Value); return a; });
@@ -247,15 +290,25 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             dynamic next = nextParameters.Aggregate(new ExpandoObject() as IDictionary<string, Object>,
               (a, p) => { a.Add(p.Key, p.Value); return a; });
 
+            dynamic last = lastParameters.Aggregate(new ExpandoObject() as IDictionary<string, Object>,
+              (a, p) => { a.Add(p.Key, p.Value); return a; });
+
             switch (type)
             {
+                case ResourceUriType.FirstPage:
+                    return Url.Link(nameof(SearchValueSets),
+                    first);
                 case ResourceUriType.PreviousPage:
                     return Url.Link(nameof(SearchValueSets),
                     prev);
-                default:
                 case ResourceUriType.NextPage:
                     return Url.Link(nameof(SearchValueSets),
                     next);
+                case ResourceUriType.LastPage:
+                    return Url.Link(nameof(SearchValueSets),
+                    last);
+                default:
+                    throw new InvalidOperationException();
             }
         }
 
@@ -309,7 +362,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             return (valueSetFromRepo, valueSetVersionFromRepo);
         }
 
-        private ValueSet BuildValueSet(Entities.ValueSetVersion valueSetVersionFromRepo, Entities.ValueSet valueSetFromRepo)
+        private ValueSet BuildValueSet(Entities.ValueSetVersion valueSetVersionFromRepo, Entities.ValueSet valueSetFromRepo, bool includeConcepts = true)
         {
             var valueSet = new Hl7.Fhir.Model.ValueSet();
             valueSet.Url = Url.Link(
@@ -346,42 +399,46 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             valueSet.DateElement = new FhirDateTime(valueSetVersionFromRepo.StatusDate);
             valueSet.Version = valueSetVersionFromRepo.ValueSetVersionNumber.ToString();
             valueSet.VersionId = valueSetVersionFromRepo.ValueSetVersionID.ToString();
-            valueSet.Expansion = new ValueSet.ExpansionComponent()
-            {
-                Identifier = Guid.NewGuid().ToString(),
-                TimestampElement = new FhirDateTime(DateTimeOffset.Now),
-                Contains = new List<ValueSet.ContainsComponent>()
-            };
             valueSet.Status = PublicationStatus.Active;
 
-            var paginationParameters = new ValueSetConceptPaginationParameters()
+            if (includeConcepts)
             {
-                ValueSetVersionId = valueSetVersionFromRepo.ValueSetVersionID,
-                ValueSetVersionNumber = valueSetVersionFromRepo.ValueSetVersionNumber.ToString(),
-                PageSize = 1000
-            };
-            var valueSetConceptEntities = _valueSetConceptRepository.GetValueSetConcepts(paginationParameters);
-
-            foreach (var conceptFromRepo in valueSetConceptEntities)
-            {
-                var component = new ValueSet.ContainsComponent()
+                valueSet.Expansion = new ValueSet.ExpansionComponent()
                 {
-                    Code = conceptFromRepo.ConceptCode,
-                    Display = conceptFromRepo.CDCPreferredDesignation,
-                    System = $"urn:oid:{conceptFromRepo.CodeSystemOID}",
-                    Extension = new List<Extension>()
-                    {
-                        new Extension()
-                        {
-                            Value = new FhirString(conceptFromRepo.HL70396Identifier)
-                        }
-                    }
+                    Identifier = Guid.NewGuid().ToString(),
+                    TimestampElement = new FhirDateTime(DateTimeOffset.Now),
+                    Contains = new List<ValueSet.ContainsComponent>()
                 };
-                valueSet.Expansion.Contains.Add(component);
-            }
 
-            valueSet.Expansion.Total = valueSet.Expansion.Contains.Count;
-            valueSet.Expansion.Offset = (paginationParameters.PageNumber - 1) * paginationParameters.PageSize;
+                var paginationParameters = new ValueSetConceptPaginationParameters()
+                {
+                    ValueSetVersionId = valueSetVersionFromRepo.ValueSetVersionID,
+                    ValueSetVersionNumber = valueSetVersionFromRepo.ValueSetVersionNumber.ToString(),
+                    PageSize = 1000
+                };
+
+                var valueSetConceptEntities = _valueSetConceptRepository.GetValueSetConcepts(paginationParameters);
+                foreach (var conceptFromRepo in valueSetConceptEntities)
+                {
+                    var component = new ValueSet.ContainsComponent()
+                    {
+                        Code = conceptFromRepo.ConceptCode,
+                        Display = conceptFromRepo.CDCPreferredDesignation,
+                        System = $"urn:oid:{conceptFromRepo.CodeSystemOID}",
+                        Extension = new List<Extension>()
+                        {
+                            new Extension()
+                            {
+                                Value = new FhirString(conceptFromRepo.HL70396Identifier)
+                            }
+                        }
+                    };
+                    valueSet.Expansion.Contains.Add(component);
+                }
+
+                valueSet.Expansion.Total = valueSet.Expansion.Contains.Count;
+                valueSet.Expansion.Offset = (paginationParameters.PageNumber - 1) * paginationParameters.PageSize;
+            }
 
             return valueSet;
         }
