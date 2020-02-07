@@ -100,7 +100,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
 
         // GET api/fhir/[type]/[id] {?_format=[mime-type]}
         /// <summary>
-        /// Gets a resource by its ID
+        /// Gets a value set by its ID
         /// </summary>
         /// <remarks>
         /// See https://www.hl7.org/fhir/http.html#read
@@ -108,23 +108,23 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         /// <returns>FHIR ValueSet</returns>
         [HttpGet("{type}/{id}")]
         [Produces("application/fhir+json")]
-        public IActionResult GetResourceById(string type, string id)
+        public IActionResult GetValueSetById(string type, string id)
         {
-            return GetVersionedResourceById(type, id, "latest");
+            return GetVersionedValueSetById(type, id, "latest");
         }
 
         // GET api/fhir/[type]/[id] {?_format=[mime-type]}
         /// <summary>
-        /// Gets a resource by its ID
+        /// Gets a value set by its ID
         /// </summary>
         /// <remarks>
         /// See https://www.hl7.org/fhir/http.html#vread
         /// </remarks>
         /// <returns>FHIR ValueSet</returns>
-        [HttpGet("{type}/{id}/_history/{vid}")]
+        [HttpGet("{type}/{id}/_history/{vid}", Name = "GetVersionedValueSetById")]
         [Produces("application/fhir+json")]
         [ResponseCache(VaryByHeader = "User-Agent", Location = ResponseCacheLocation.Any, Duration = 86_400, NoStore = false)]
-        public IActionResult GetVersionedResourceById(string type, string id, string vid)
+        public IActionResult GetVersionedValueSetById(string type, string id, string vid)
         {
             if (!type.Equals("ValueSet", StringComparison.OrdinalIgnoreCase))
             {
@@ -312,6 +312,14 @@ namespace Cdc.Vocabulary.WebApi.Controllers
         private ValueSet BuildValueSet(Entities.ValueSetVersion valueSetVersionFromRepo, Entities.ValueSet valueSetFromRepo)
         {
             var valueSet = new Hl7.Fhir.Model.ValueSet();
+            valueSet.Url = Url.Link(
+                nameof(GetVersionedValueSetById), 
+                new 
+                { 
+                    type = "ValueSet", 
+                    id = valueSetFromRepo.ValueSetCode, 
+                    vid = valueSetVersionFromRepo.ValueSetVersionNumber.ToString() 
+                });
             valueSet.Identifier = new List<Identifier>()
             {
                 new Identifier()
