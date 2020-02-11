@@ -175,6 +175,7 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 searchBundle.Entry.Add(entry);
             }
             
+            var selfPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.SelfPage, null);
             var firstPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.FirstPage, null);
             var previousPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.PreviousPage, null);
             var nextPageLink = CreateValueSetResourceUri(parameters, ResourceUriType.NextPage, null);
@@ -184,6 +185,12 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             {
                 nextPageLink = string.Empty;
             }
+
+            searchBundle.Link.Add(new Bundle.LinkComponent()
+            {
+                Relation = "self",
+                Url = selfPageLink
+            });
 
             searchBundle.Link.Add(new Bundle.LinkComponent()
             {
@@ -293,6 +300,9 @@ namespace Cdc.Vocabulary.WebApi.Controllers
             dynamic last = lastParameters.Aggregate(new ExpandoObject() as IDictionary<string, Object>,
               (a, p) => { a.Add(p.Key, p.Value); return a; });
 
+            dynamic self = parameters.Aggregate(new ExpandoObject() as IDictionary<string, Object>,
+              (a, p) => { a.Add(p.Key, p.Value); return a; });
+
             switch (type)
             {
                 case ResourceUriType.FirstPage:
@@ -307,6 +317,9 @@ namespace Cdc.Vocabulary.WebApi.Controllers
                 case ResourceUriType.LastPage:
                     return Url.Link(nameof(SearchValueSets),
                     last);
+                case ResourceUriType.SelfPage:
+                    return Url.Link(nameof(SearchValueSets),
+                    self);
                 default:
                     throw new InvalidOperationException();
             }

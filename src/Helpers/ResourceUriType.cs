@@ -5,6 +5,7 @@ namespace Cdc.Vocabulary.WebApi.Helpers
         FirstPage,
         PreviousPage,
         NextPage,
-        LastPage
+        LastPage,
+        SelfPage
     }
 }
